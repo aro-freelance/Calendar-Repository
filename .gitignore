@@ -30,4 +30,4 @@ google-services.json
 *.hprof
 
 # Notes
-0000DevNotes.txt
+*DevNotes*
