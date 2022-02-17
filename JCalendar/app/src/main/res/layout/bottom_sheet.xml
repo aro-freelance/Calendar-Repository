@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_sheet"
+    style="@style/Animation.Design.BottomSheetDialog"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    app:behavior_hideable="false"
+
+    app:behavior_peekHeight="@dimen/dimen_32"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+
+    <TextView
+        android:id="@+id/green_text_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:padding="8dp"
+        android:text="@string/_256"
+        app:layout_constraintBottom_toBottomOf="@+id/green_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/green_bar" />
+
+    <SeekBar
+        android:id="@+id/blue_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:padding="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/red_text_box"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/red_bar" />
+
+    <TextView
+        android:id="@+id/blue_text_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:padding="8dp"
+        android:text="@string/_256"
+        app:layout_constraintBottom_toBottomOf="@+id/blue_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/blue_bar" />
+
+    <EditText
+        android:id="@+id/enter_todo_edit_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimen_16"
+        android:hint="@string/enter_todo_hint"
+        android:importantForAutofill="no"
+        android:inputType="textPersonName"
+        android:padding="@dimen/dimen_16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="TextContrastCheck" />
+
+    <ImageButton
+        android:id="@+id/save_todo_button"
+        android:layout_width="81dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/save_task_image_button_descrip"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/category_button"
+        app:layout_constraintTop_toBottomOf="@+id/enter_todo_edit_text"
+        app:srcCompat="@drawable/ic_baseline_save_24"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <ImageButton
+        android:id="@+id/calendar_button"
+        android:layout_width="81dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/image_description"
+        app:layout_constraintEnd_toStartOf="@+id/color_select_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/photo_add_button"
+        app:layout_constraintTop_toBottomOf="@+id/enter_todo_edit_text"
+        app:srcCompat="@drawable/ic_baseline_access_time_24"
+        tools:ignore="RedundantDescriptionCheck" />
+
+    <ImageButton
+        android:id="@+id/category_button"
+        android:layout_width="81dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/category_image_button_descrip"
+        app:layout_constraintEnd_toStartOf="@+id/save_todo_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/color_select_button"
+        app:layout_constraintTop_toBottomOf="@+id/enter_todo_edit_text"
+        app:srcCompat="@drawable/ic_baseline_category_24"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <Spinner
+        android:id="@+id/category_spinner_bottom_sheet"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_button"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/color_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids=" green_bar, blue_bar,
+        red_bar, green_text_box, red_text_box, blue_text_box, red_label_text,
+        blue_label_text, green_label_text, preview_color_imageview, preview_text_colors,
+        checkbox_invert_text_color" />
+
+    <EditText
+        android:id="@+id/category_edit_text_bottom_sheet"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="64dp"
+        android:ems="10"
+        android:hint="@string/category_edit_text_hint"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:minHeight="48dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_spinner_bottom_sheet"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/new_category_button_bottom_sheet"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/new_category_button"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_edit_text_bottom_sheet"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <SeekBar
+        android:id="@+id/green_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:padding="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/red_text_box"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/blue_bar" />
+
+    <TimePicker
+        android:id="@+id/time_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:timePickerMode="spinner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calendar_button" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/photo_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="intent_photo_button,image_view_bottomsheet, rotate_photo_button_bottomsheet" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/calendar_group"
+        android:layout_width="280dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:constraint_referenced_ids="time_picker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/category_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="category_spinner_bottom_sheet,category_edit_text_bottom_sheet" />
+
+    <ImageButton
+        android:id="@+id/color_select_button"
+        android:layout_width="81dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/color_icon"
+        app:layout_constraintEnd_toStartOf="@+id/category_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/calendar_button"
+        app:layout_constraintTop_toBottomOf="@+id/enter_todo_edit_text"
+        app:srcCompat="@drawable/ic_baseline_color_lens_24"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <ImageButton
+        android:id="@+id/photo_add_button"
+        android:layout_width="81dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/photo_icon"
+        app:layout_constraintEnd_toStartOf="@+id/calendar_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/enter_todo_edit_text"
+        app:srcCompat="@drawable/ic_baseline_add_a_photo_24"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <Button
+        android:id="@+id/intent_photo_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/add_photo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/photo_add_button" />
+
+    <ImageView
+        android:id="@+id/image_view_bottomsheet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/image"
+        android:cropToPadding="true"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/intent_photo_button" />
+
+    <ProgressBar
+        android:id="@+id/progressBar_bottomsheet"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <SeekBar
+        android:id="@+id/red_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="32dp"
+        android:padding="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/red_text_box"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/preview_color_imageview" />
+
+    <TextView
+        android:id="@+id/red_text_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:padding="8dp"
+        android:text="@string/_256"
+        app:layout_constraintBottom_toBottomOf="@+id/red_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/red_bar"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <TextView
+        android:id="@+id/red_label_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/red"
+        android:textColor="@color/pure_red"
+        app:layout_constraintBottom_toTopOf="@+id/red_bar"
+        app:layout_constraintEnd_toEndOf="@+id/red_bar"
+        app:layout_constraintStart_toStartOf="@+id/red_bar" />
+
+    <TextView
+        android:id="@+id/blue_label_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/blue"
+        android:textColor="@color/pure_blue"
+        app:layout_constraintBottom_toTopOf="@+id/blue_bar"
+        app:layout_constraintEnd_toEndOf="@+id/blue_bar"
+        app:layout_constraintStart_toStartOf="@+id/blue_bar" />
+
+    <TextView
+        android:id="@+id/green_label_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/green"
+        android:textColor="@color/pure_green"
+        app:layout_constraintBottom_toTopOf="@+id/green_bar"
+        app:layout_constraintEnd_toEndOf="@+id/green_bar"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/green_bar" />
+
+    <ImageView
+        android:id="@+id/preview_color_imageview"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/color_preview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/color_select_button" />
+
+    <TextView
+        android:id="@+id/preview_text_colors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/preview"
+        app:layout_constraintBottom_toBottomOf="@+id/preview_color_imageview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/preview_color_imageview" />
+
+    <CheckBox
+        android:id="@+id/checkbox_invert_text_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:text="@string/invert_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/preview_text_colors"
+        app:layout_constraintTop_toBottomOf="@+id/color_select_button" />
+
+    <Button
+        android:id="@+id/rotate_photo_button_bottomsheet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="@string/rotate"
+        app:layout_constraintBottom_toBottomOf="@+id/intent_photo_button"
+        app:layout_constraintStart_toEndOf="@+id/intent_photo_button"
+        app:layout_constraintTop_toTopOf="@+id/intent_photo_button" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

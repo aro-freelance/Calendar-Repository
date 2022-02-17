@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <item
+        android:id="@+id/action_calendar"
+        android:title="@string/calendar" />
+    <item
+        android:id="@+id/action_today"
+        android:title="@string/today" />
+    <item
+        android:id="@+id/action_change_bg_image"
+        android:title="@string/change_background_image" />
+    <item
+        android:id="@+id/action_rotate_bg_image"
+        android:title="@string/string_rotate_background_image" />
+</menu>

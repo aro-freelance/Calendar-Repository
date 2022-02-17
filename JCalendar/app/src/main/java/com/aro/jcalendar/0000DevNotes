@@ -1,0 +1,305 @@
+Dev Notes
+
+These are the notes taken during the development of this app.
+
+
+Base functionality
+       done
+        BG Image Insert from Intent
+         done
+      change time/day input of notes
+          done
+
+      remove or implement priority
+         done
+      make the enter button easier for user to understand
+          done
+
+          update task and migrate with string url and string color
+          done
+
+
+         Add Image to Notes
+         done using firebase storage
+
+
+         Colors
+         done using r g b sliders
+
+         Font inversion
+          if user selected a dark color they couldn't see the text on it.
+          added a new property to task for font color
+          added a checkbox to invert the font (black -> white)
+
+
+
+        Today Fragment (changed this idea to addnewnote on load pulls today)
+        changed this idea. dropped it and made the add new note activity the launcher activity.
+        and set it up so that if there is no bundle clicked ldt it gets todayldt.
+
+
+
+
+         month select dropdown
+          working 1 year at a time.
+
+        fix notifications on calendar view
+
+         troubleshooting: the notificationlist being received by the adapter is empty
+         (being opened by menu from addnewnote activity)
+         fixed by removing the time element
+         notif list is now being passed to adapter but not being displayed.
+         fixed by removing time element from adapter comparison as well.
+
+         display is now working. however, it is not working on the few days of the previous month.
+
+
+           fix end of month display inverse
+           days from the end of last month are being displayed in reverse order
+           fixed by changing the calculation from 1 + i to startOfMonthCorrectionNumber - i in
+           the FixStartOfMonth function.
+
+           add colors to the calendarview
+           i added three dots to the calendar single box layout. these are set to show the colors of
+           up to the first three tasks. they also convert white to a black outline so it is visible
+
+
+           add the end of last month to notification list
+               fixed by correcting the loop that was checking to see if notifs were from the same month
+
+           // i am here
+
+            notif list should ignore completed
+                fixed by adding an if statement in the calendar adapter. if category of the task is
+                completed it will not be added to the list used by the ui elements of the adapter
+
+            default text on white background should be black. fix this (currently white/invisible)
+               fixed by adding an if statement that checks if the text color is not white or black,
+               if not white or black it sets it to black.
+
+           fix time.. format issue
+             example: 16:9  ... change to AM/PM and fix single digit > 09.
+             fixed with some logic in recycler view adapter.
+
+             background image
+             save background image to firebase and setup retrieval of it as well
+             I have setup a firebase image save. using randomnumber+timestamp as file name
+             And i set up a sharedpref string storage of the url to the firebase image.
+             this is working now.
+
+             bug background image permission crash
+               This is still happening this is happening because the url was pointing to local rather
+               than actually using the firebase url
+               it is now using the firebase url but running in to other complication
+               fixed using Picasso and a centercrop fullscreen imageView in the background so I can
+               use a url saved to sharedpref.
+
+              fix background image orientation
+              added a menu option to rotate the background. also added a rotation value which
+              is saved to sharedpref.
+
+
+             fix photo orientation in task entries
+              pictures are showing sideways upsidedown etc. let user change this.
+              fixed by adding a rotate button next to the add photo button. this allows the user
+              to rotate the image using a preview imageview. the rotation is then saved to sharedprefs
+              using the taskname and url to help identify. this could be improved by adding the rotation value to the room table
+              but it is working
+
+             UI improvement after background image
+              after adding a background image some UI elements become difficult to read.
+              change some UI elements to have a solid color background
+              fixed with some adjustments to the size of the imageview serving as the background
+              also moved the category dropdown in addnewnote to inside the appbarlayout and made
+              a custom spinner layout for it to allow it to be easier to read
+
+               when opening for edit the bottom sheet data is not
+               being initialized correctly or showing in the UI display.
+               fixed UI load for edits by adding a method that loads all this data and clearing the
+               data on destroy
+
+               when intent for photo is opened it clears all data in the bottom sheet.
+                fix this somehow.  I have it working so that it is temp saving by using sharedviewmodel
+                to save the task at the moment of its creation in the save method. then using a bool it
+                is ending the save method without actually saving to the database if it is a temp save for the image intent.
+                this is working perfectly for what we want.
+
+                some edits seem to not be saving.
+                the issue is the way that the temp save is working. it is overwriting the sharedviewmodel task.
+                but that task is also being retrieved when we are figuring out which task to update.
+                so we need to update a variable with that task seperately. this should be something we can do
+                with a variable that doesn't need to persist.
+                fixed. so isEdit updating is now working.
+
+                 Bug: changing tabs in isEdit drops changes to the string (it resets to whatever the saved string is)
+                 note that this is only happening for isEdit. not for new entries
+                 fixed by adjusting when the string is set.
+
+                 Bug : string is being populated on new task, after editing a task
+                 fixed by again adjusting when the string is set
+
+                 when a task is opened to edit, and then immediately saved it is saving losing data/ setting to default
+                 fixed by removing additional calls to setUIOnLoad which were previously happening when the tabs were switched
+                 and adding setUIOnLoad to OnResume only.
+
+                 bug: photo from previous task automatically added to new task
+                    fix this by making sure that this is clearing properly. this should be an issue with
+                    the uri variable not being cleared or something like that
+                    fixed by making the imageUri null in the clearData method.
+
+                  losing task title string after opening photo intent. this wasn't happening before so
+                   likely was broken by the changes made above.
+                   was broken because the text is no longer set in setUIOnLoad
+                   fixed by adding the text set line in the onActivityResult method that is called after photo intent:
+                   taskEditText.setText(Objects.requireNonNull(sharedViewModel.getSelectedItem().getValue()).getTask());
+
+
+                   ISSUES SAVING IF PHOTO INTENT IS CALLED
+                   changing photo is not working on edit (the new photo doesn't save).
+                   also rotate not working on edit after adding a new photo
+                   Note: the photo is being added to firebase storage. but not updated in the database.
+                   Note: if the photo intent is opened, even if a new photo isn't selected no edits save.
+                   (I.E. if the string for the title is changed and then the photo intent is opened,
+                   it will show the string correctly in the bottomsheet, but when the save button is pressed
+                   it will not update the database with the change).
+                   When a new photo is added and then rotate is clicked, it reverts to the old photo.
+                   PROBLEM LOCATED?: setUIOnLoad is called in onActivityResult after returning from photo intent.
+                   This sets the image data back to the stored values.
+                   Added null checks to setUIOnLoad. this seems to have fixed the rotate button issue.
+                   However, data is still not being updated in the database.
+                   FIXED: This issue boiled down to Android Cycle calls. I needed to remove the reset call from onStop()
+                   and only call reset onDestroy(). I also needed to stop onResume() from running when the photo intent
+                   ended and the user returned to this app, because onResume() was setting isEdit and taskToUpdate
+                   using the sharedViewModel stored task (and we only want this to happen on initial load)
+                   Possibly this means that I should move that to onCreate... but I fixed this with a conditional
+                   check in onResume to see if tempTask was null. tempTask will not be null if tempSave has run.
+                   tempSave runs before the photo intent is called, so this is working now.
+
+                   issue with new task with a photo not working. this is being caused because of the way
+                   isEdit was being turned on after a photo was added to turn on the effects of setUIOnLoad.
+                   Fixed by removing the code that turned on isEdit when a photo was added and instead adding
+                   || tempTask != null in the conditional check in setUIOnLoad. This is now working fine.
+
+
+
+                  sometimes after adding a task, it automatically opens completed tab rather than to do list
+                  Not sure what fixed this, but it is not happening now.
+
+              rotate is showing sometimes when it should not be in the BottomSheet photo tab
+              fixed by making it visibility gone and then checking if the imageUriString is not null and not an
+              empty string. if that is the case, i make the rotate button and the photo (imageview) visible
+              and then use picasso to show the photo in the same conditional statement (inside the photogroup button method)
+
+
+
+              deleted tasks
+               there was a bug with deleted tasks. something about the deleted task causing
+               an out of bounds error on the tasklist (for the daily list in addnewnote)
+               check if this is still happening and resolve
+               this is not happening now. not sure what the issue was but it seems fixed.
+
+               datechip doesn't open bottomsheet when clicked
+                make it so that if user clicks on the todorowchip (which displays the date/time
+                in the recyclerview showin on the AddNewNote activity) it will open the bottomsheet
+                just like if they click on any other part of the layout (except the radio button)
+                Fixed by specifying the chip onclick response in the RecyclerViewAdapter the way I did the layout.
+                Not sure why it needs to be specified but the textview and imageview do not...
+                however it is working now.
+
+                change the default photo (for picasso) to something that will load faster and
+                indicate to the user that a photo is loading.
+                Done: Created a vector image of a photo icon (grey color) and added it as the load image
+                for the recycler view images as well as the bottom sheet preview image.
+                Removed the placeholder image from the background entirely. Loading white initially looks cleaner.
+                Without a placeholder the background is GONE until it loads, so I removed it as a constraint from
+                other layout objects (so they would not move before and after it loaded).
+                Could look in to adding a loading screen to the app so that the background image loads
+                before we show the user the activity.... but that is an upgrade for later
+
+
+
+
+        display first category that isn't empty, rather than defaulting to "To Do List"
+        done using a boolean to check if it is the initial load and then where the check is to show
+        the empty category UI stuff in AddNew setCurrentTaskList I added a check to see...
+        if To Do List is empty and it is the initial load if any other category for that day is not empty
+        set the spinner to the first not empty category found for that day. And then of course
+        whether a cat is found or not turn off initial load boolean so this doesn't run if user is
+        switching to empty To Do List manually.
+
+         if user has navigated to another month, and then opens a day in that month
+         and then returns to the calendar return them to the month they navigated to
+         rather than sending them to the current month. (to do this, store the date the user navigated to in shared prefs
+         or something)
+         done using shared prefs in main activity prev/next methods and month spinner and in add new note oncreate
+         since the add new note oncreate sets the shared prefs to the ldtclicked and on load the calendar sets
+         ldtclicked to today, it will automatically reset to the current month if the user resets the app.
+         which is what we want. also that means if the user clicks the today button they will easily be navigated back
+         to the current month.
+
+         show inverted text to UI preview box when isEdit is on and inverted text is on
+         done. just had to add the text to set the textview color to white in setUIOnLoad in the
+         conditional block that checks the textcolorint saved to the task.
+
+         If the user opened a day in dec and then went back to calendar the saved date
+          seems to be december of the following year. (however the spinner is displaying the correct year).
+          The recyclerview and the date passed to Add New are +1 year.
+           Fixed by adding a line in the place where the spinner is set with stored date to also set
+           the LDT variable (movingLDT)
+
+        The Add New default category is sometimes "completed".
+         This should never be the case. If there are no tasks for the day the default
+         should be "To Do List".
+         Fixed by adding a check for whether the cat is "Completed" when the initial UI
+         setup of the categories spinner is happening. If we are not returning from a delete
+         and the category happens to be set to completed, then set it to "To Do List".
+         (In AddNew getCategories function)
+
+         If a task is added, sometimes the app crashes when attempting to display
+                        the month where the task is.
+                       Error :  java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
+                                       at java.util.ArrayList.get(ArrayList.java:437)
+                                       at com.aro.jcalendar.adapter.CalendarAdapter.onBindViewHolder(CalendarAdapter.java:132)
+                         CalendarAdapter.java:132  == holder.previewNoteOneTextView.setText(localTaskList.get(0).getTask());
+         Fixed with checks to see if the localTaskList.size > 0 and then to see if the task at pos 0 was not null.
+         Seems that this is running more times than needed.... but it is functioning now.
+         todo: remove extra loops in the CalendarAdapter onBindViewHolder
+               and make sure it keeps working... but as they say if it ain't broke don't fix it
+
+         Launch from app icon = crash (Sometimes?... didn't happen this morning.
+                  Only difference I can think of at the moment is there are three tasks today and last night
+                  there were 0-1... don't remember). Confirmed that the crash is happening if there are no
+                  tasks added to Today. This is the error I got from the crash:
+                   Unable to start activity ComponentInfo{com.aro.jcalendar/com.aro.jcalendar.AddNewNote}: java.time.DateTimeException:
+                   Invalid value for MonthOfYear (valid values 1 - 12): 0
+                   at com.aro.jcalendar.AddNewNote.onCreate(AddNewNote.java:128)
+                   Fixed by adding a check for the month, day, year... if any of them are equal to zero it
+                   will set them to the month, day or year of the current day.
+
+
+         category change edit = not being added to db and spinner
+                  Fixed by moving the block of code that saves new categories (in BottomSheetFragment save method)
+                  ahead of the check for isEdit or new save.
+
+         default cat after task added is not updating
+                  Fixed with some adjustments to AddNew getCategories() and setCurrentTaskList()
+
+          Completed Category is sometimes being loaded as default
+          Fixed with several checks for this in getCategories() and setCurrentTaskList().
+          If there are tasks in other categories it will go to those first. If there are no tasks
+          except in completed it will go to To Do List (even if To Do List is empty). The only
+          way that Completed will open is if the user navigates there, or if the user is returning
+          from the delete bottomsheet in the completed category.
+
+          Updated ads to live version. 1/31/22
+
+         Bugs:
+
+         No current known bugs.
+
+
+
+
+
+         Work on Upgrade Stuff (listed in Main Activity)
+         document any changes here...
