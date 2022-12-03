@@ -481,8 +481,10 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
 
         if(categoryString != null){
-            if(categories.contains(categoryString))
-            spinner.setSelection(categories.indexOf(categoryString));
+            if(categories.contains(categoryString)){
+                spinner.setSelection(categories.indexOf(categoryString));
+            }
+
         }
 
         loadSpinnerFromDelete = false;
