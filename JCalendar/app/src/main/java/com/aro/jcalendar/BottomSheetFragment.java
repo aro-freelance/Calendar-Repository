@@ -76,6 +76,7 @@ public class BottomSheetFragment extends BottomSheetDialogFragment implements Ad
     private Group photoGroup;
     private Button intentPhotoButton;
     private Priority priority;
+
     private LocalDateTime dueDate;
     private SharedViewModel sharedViewModel;
     private boolean isEdit = false;
@@ -84,6 +85,7 @@ public class BottomSheetFragment extends BottomSheetDialogFragment implements Ad
     private LocalDateTime now = LocalDateTime.now();
     private CategoryViewModel categoryViewModel;
     private LocalDateTime clickedLDT;
+
     private Uri imageUri;
     private String imageUriString;
     private String colorString;

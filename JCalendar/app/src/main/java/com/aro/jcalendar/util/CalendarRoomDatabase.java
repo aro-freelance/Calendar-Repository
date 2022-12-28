@@ -3,6 +3,7 @@ package com.aro.jcalendar.util;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -11,16 +12,20 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.aro.jcalendar.data.CalendarDao;
 import com.aro.jcalendar.data.CategoryDao;
+import com.aro.jcalendar.data.CounterDao;
 import com.aro.jcalendar.data.TaskDao;
 import com.aro.jcalendar.model.Calendar;
 import com.aro.jcalendar.model.Category;
+import com.aro.jcalendar.model.Counter;
 import com.aro.jcalendar.model.Task;
+
+import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Database(
-        version = 7,
-        entities = {Calendar.class, Category.class, Task.class}
+        version = 8,
+        entities = {Calendar.class, Category.class, Task.class, Counter.class}
 
 )
 @TypeConverters({Converter.class})
@@ -33,6 +38,7 @@ public abstract class CalendarRoomDatabase extends RoomDatabase {
     public abstract CalendarDao calendarDao();
     public abstract CategoryDao categoryDao();
     public abstract TaskDao taskDao();
+    public abstract CounterDao counterDao();
 
     //this is called by addCallback when the database is first created
     public static final RoomDatabase.Callback sRoomDatabaseCallback =
@@ -50,6 +56,9 @@ public abstract class CalendarRoomDatabase extends RoomDatabase {
 
                         TaskDao taskDao = INSTANCE.taskDao();
                         taskDao.deleteAll(); //clear the database when it is initially created
+
+                        CounterDao counterDao = INSTANCE.counterDao();
+                        counterDao.deleteAll(); //clear the database when it is initially created
 
                     });
                 }
@@ -69,6 +78,7 @@ public abstract class CalendarRoomDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
                             .addMigrations(MIGRATION_6_7)
+                            .addMigrations(MIGRATION_7_8)
                             .build();
                 }
             }
@@ -141,6 +151,21 @@ public abstract class CalendarRoomDatabase extends RoomDatabase {
             database.execSQL("ALTER TABLE task_table " +
                     " ADD COLUMN `text_color_int` INTEGER"
             );
+        }
+    };
+
+    static final Migration MIGRATION_7_8 = new Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS counter_table " +
+                    "(`counterId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`date_started` INTEGER, " +
+                    "`counter_title` TEXT, " +
+                    "`counter_additional_info` TEXT, " +
+                    "`is_active` INTEGER, " +
+                    "`date` INTEGER, " +
+                    "`value` INTEGER)");
+
         }
     };
 }

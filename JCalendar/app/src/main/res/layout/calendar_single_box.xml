@@ -2,10 +2,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/single_box_parent"
     android:layout_width="match_parent"
     android:layout_height="75dp"
     android:padding="2dp"
-    android:id="@+id/single_box_parent"
     android:tooltipText="99 Notifications">
 
     <androidx.cardview.widget.CardView
@@ -23,16 +23,50 @@
             android:background="@drawable/background_cell">
 
 
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/color_circle_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:contentDescription="@string/notif_one"
+                    app:srcCompat="@drawable/ic_baseline_stars_24" />
+
+                <ImageView
+                    android:id="@+id/color_circle_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/notif_two"
+                    app:srcCompat="@drawable/ic_baseline_stars_24" />
+
+                <ImageView
+                    android:id="@+id/color_circle_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/notif_three"
+                    app:srcCompat="@drawable/ic_baseline_stars_24" />
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/date_number_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 android:fontFamily="sans-serif"
                 android:padding="2dp"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="99" />
 
@@ -51,63 +85,30 @@
                 app:layout_constraintVertical_bias="1.0" />
 
             <TextView
-                android:id="@+id/note_Quantity_TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="2dp"
-                android:padding="4dp"
-                android:text="@string/_99"
-                android:textColor="@android:color/holo_red_dark"
-                android:textSize="11sp"
-                android:tooltipText="99 Notifications"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
                 android:id="@+id/note_preview_textview_1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:padding="4dp"
                 android:text="@string/long_note_sample"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+            <TextView
+                android:id="@+id/counter_number_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:fontFamily="sans-serif"
+                android:padding="2dp"
+                android:textColor="@color/icon_red"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <ImageView
-                android:id="@+id/color_circle_1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:contentDescription="@string/notif_one"
-                app:layout_constraintBottom_toTopOf="@+id/note_preview_textview_1"
-                app:layout_constraintStart_toStartOf="@+id/calendar_day_bg_image_view"
-                app:layout_constraintTop_toBottomOf="@+id/note_Quantity_TextView"
-                app:srcCompat="@drawable/ic_baseline_stars_24" />
-
-            <ImageView
-                android:id="@+id/color_circle_2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:contentDescription="@string/notif_two"
-                app:layout_constraintBottom_toBottomOf="@+id/color_circle_1"
-                app:layout_constraintStart_toEndOf="@+id/color_circle_1"
-                app:layout_constraintTop_toTopOf="@+id/color_circle_1"
-                app:srcCompat="@drawable/ic_baseline_stars_24" />
-
-            <ImageView
-                android:id="@+id/color_circle_3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:contentDescription="@string/notif_three"
-                app:layout_constraintBottom_toBottomOf="@+id/color_circle_2"
-                app:layout_constraintStart_toEndOf="@+id/color_circle_2"
-                app:layout_constraintTop_toTopOf="@+id/color_circle_2"
-                app:srcCompat="@drawable/ic_baseline_stars_24" />
+                tools:text="99" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -13,12 +13,13 @@
         android:id="@+id/background_imageview_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
         android:contentDescription="@string/background_image_content_desc"
         android:scaleType="centerCrop"
         ads:layout_constraintBottom_toBottomOf="parent"
         ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintStart_toStartOf="parent"
-        ads:layout_constraintTop_toTopOf="@+id/calendar_grid_recyclerview"
+        ads:layout_constraintTop_toBottomOf="@+id/month_title_spinner"
         ads:srcCompat="@drawable/image_one" />
 
     <ImageButton
@@ -74,101 +75,100 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/month_title_spinner" />
+        app:layout_constraintTop_toTopOf="@+id/background_imageview_main" />
 
-    <TextView
-        android:id="@+id/sunday_title_textview"
-        android:layout_width="57dp"
+
+    <LinearLayout
+        android:id="@+id/days_linear_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/white"
         android:gravity="center"
-        android:text="@string/sun"
-        app:layout_constraintBottom_toTopOf="@id/divider"
-        app:layout_constraintEnd_toStartOf="@+id/monday_title_textview"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="horizontal"
+        ads:layout_constraintBottom_toTopOf="@+id/divider"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent">
 
-    <TextView
-        android:id="@+id/monday_title_textview"
-        android:layout_width="58dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:text="@string/mon"
-        app:layout_constraintBottom_toTopOf="@id/divider"
-        app:layout_constraintEnd_toStartOf="@+id/tuesday_title_textview"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/sunday_title_textview" />
+        <TextView
+            android:id="@+id/sunday_title_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/sun" />
 
-    <TextView
-        android:id="@+id/tuesday_title_textview"
-        android:layout_width="57dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:text="@string/tue"
-        app:layout_constraintBottom_toTopOf="@id/divider"
-        app:layout_constraintEnd_toStartOf="@+id/wednesday_title_textview"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/monday_title_textview" />
+        <TextView
+            android:id="@+id/monday_title_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/mon" />
 
-    <TextView
-        android:id="@+id/wednesday_title_textview"
-        android:layout_width="58dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:text="@string/wed"
-        app:layout_constraintBottom_toTopOf="@id/divider"
-        app:layout_constraintEnd_toStartOf="@+id/thursday_title_textview"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/tuesday_title_textview" />
+        <TextView
+            android:id="@+id/tuesday_title_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/tue" />
 
-    <TextView
-        android:id="@+id/thursday_title_textview"
-        android:layout_width="57dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:text="@string/thu"
-        app:layout_constraintBottom_toTopOf="@id/divider"
-        app:layout_constraintEnd_toStartOf="@+id/friday_title_textview"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/wednesday_title_textview" />
+        <TextView
+            android:id="@+id/wednesday_title_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/wed" />
 
-    <TextView
-        android:id="@+id/friday_title_textview"
-        android:layout_width="58dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:text="@string/fri"
-        app:layout_constraintBottom_toTopOf="@id/divider"
-        app:layout_constraintEnd_toStartOf="@+id/saturday_title_textview"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/thursday_title_textview" />
+        <TextView
+            android:id="@+id/thursday_title_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/thu" />
 
-    <TextView
-        android:id="@+id/saturday_title_textview"
-        android:layout_width="58dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:text="@string/sat"
-        app:layout_constraintBottom_toTopOf="@id/divider"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/friday_title_textview" />
+        <TextView
+            android:id="@+id/friday_title_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/fri" />
 
+        <TextView
+            android:id="@+id/saturday_title_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/sat" />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/calendar_grid_recyclerview"
@@ -183,34 +183,16 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-8090508994671525/3579153363"
-        ads:layout_constraintTop_toBottomOf="@+id/calendar_grid_recyclerview"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <Button
         android:id="@+id/background_photo_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:text="@string/change_background_image"
         android:visibility="gone"
         ads:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/adView"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/calendar_grid_recyclerview" />
 
     <Button
@@ -220,10 +202,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
         android:text="@string/today"
         android:visibility="gone"
-        ads:layout_constraintBottom_toTopOf="@+id/adView"
         ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintStart_toEndOf="@+id/background_photo_button"
         ads:layout_constraintTop_toBottomOf="@+id/calendar_grid_recyclerview" />

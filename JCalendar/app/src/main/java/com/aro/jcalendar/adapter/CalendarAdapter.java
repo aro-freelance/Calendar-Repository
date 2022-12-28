@@ -1,7 +1,10 @@
 package com.aro.jcalendar.adapter;
 
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.aro.jcalendar.R;
 import com.aro.jcalendar.model.Calendar;
+import com.aro.jcalendar.model.Counter;
+import com.aro.jcalendar.model.CounterViewModel;
 import com.aro.jcalendar.model.Task;
 
 
@@ -26,13 +31,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
     private final List<Calendar> calendarList;
     private final List<LocalDateTime> notificationList;
     private final List<Task> taskList;
+    private final List<Counter> counterList;
     private final OnItemClickedListener itemClickedListener;
 
+
     public CalendarAdapter(List<Calendar> calendarList, List<LocalDateTime> notificationList,
-                           List<Task> taskList, OnItemClickedListener itemClickedListener) {
+                           List<Task> taskList, List<Counter> counterList, OnItemClickedListener itemClickedListener) {
         this.calendarList = calendarList;
         this.notificationList = notificationList;
         this.taskList = taskList;
+        this.counterList = counterList;
         this.itemClickedListener = itemClickedListener;
     }
 
@@ -52,7 +60,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
     public void onBindViewHolder(@NonNull CalendarAdapter.ViewHolder holder, int position) {
 
         holder.previewNoteOneTextView.setVisibility(View.INVISIBLE);
-        holder.noteNumberTextView.setVisibility(View.INVISIBLE);
+        //holder.noteNumberTextView.setVisibility(View.INVISIBLE);
+
+        holder.counterTextView.setVisibility(View.INVISIBLE);
 
         holder.colorCircleOne.setVisibility(View.GONE);
         holder.colorCircleTwo.setVisibility(View.GONE);
@@ -127,10 +137,17 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                         }
                     }
 
-                    holder.noteNumberTextView.setVisibility(View.VISIBLE);
-                    holder.noteNumberTextView.setText(String.valueOf(numberOfTasks));
+                    //holder.noteNumberTextView.setVisibility(View.VISIBLE);
+                   //holder.noteNumberTextView.setText(String.valueOf(numberOfTasks));
                     }
             }
+        }
+
+
+        //use the counter list to display correct numbers on the grid for the counter
+        for (int i = 0; i < counterList.size(); i++) {
+
+            holder.counterTextView.setText(counterList.get(i).value);
         }
 
         holder.dateTextView.setText(dateNumber);
@@ -146,7 +163,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
         //declare views from the layout we are inflating
         private final TextView dateTextView;
-        private final TextView noteNumberTextView;
+        private final TextView counterTextView;
+        //private final TextView noteNumberTextView;
         private final TextView previewNoteOneTextView;
 
         private final ImageView colorCircleOne;
@@ -162,7 +180,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
             //implement views
             dateTextView = itemView.findViewById(R.id.date_number_textview);
-            noteNumberTextView = itemView.findViewById(R.id.note_Quantity_TextView);
+
+            //noteNumberTextView = itemView.findViewById(R.id.note_Quantity_TextView);
+            counterTextView = itemView.findViewById(R.id.counter_number_textview);
             previewNoteOneTextView = itemView.findViewById(R.id.note_preview_textview_1);
 
             colorCircleOne = itemView.findViewById(R.id.color_circle_1);
@@ -174,9 +194,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
             this.onItemClickedListener = itemClickedListener;
             itemView.setOnClickListener(this);
-
-
-
 
         }
 
@@ -193,9 +210,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                     onItemClickedListener.OnCalendarClickedListener(getAdapterPosition(), currentCalendar);
                 }
 
+                //if the counter is clicked open interface for that
+                if(id == R.id.counter_number_textview){
+                    onItemClickedListener.OnCounterClickedListener(getAdapterPosition());
+                }
+
             }
             //if other id (other view is clicked)
             //do other things
         }
+
+
     }
 }

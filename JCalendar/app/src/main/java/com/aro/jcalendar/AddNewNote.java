@@ -32,8 +32,6 @@ import com.aro.jcalendar.model.CategoryViewModel;
 import com.aro.jcalendar.model.SharedViewModel;
 import com.aro.jcalendar.model.Task;
 import com.aro.jcalendar.model.TaskViewModel;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -193,10 +191,6 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         spinner.setOnItemSelectedListener(this);
         floatingActionButton.setOnClickListener(this::floatingActionButtonMethod);
         deleteCatButton.setOnClickListener(this::deleteCatButtonMethod);
-
-        AdView mAdView = findViewById(R.id.adView_addnew);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
 
     }
 
@@ -667,6 +661,11 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
             deleteDialog.setOnCancelListener(dialogInterface -> deleteDialog.dismiss());
 
         }
+    }
+
+    @Override
+    public void OnCounterClickedListener(int position) {
+        //shouldn't need to use this here, but do need to implement for interface
     }
 
     //category spinner item selected

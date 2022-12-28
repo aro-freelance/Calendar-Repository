@@ -25,10 +25,10 @@ import com.aro.jcalendar.adapter.CalendarAdapter;
 import com.aro.jcalendar.adapter.OnItemClickedListener;
 import com.aro.jcalendar.model.Calendar;
 import com.aro.jcalendar.model.CalendarViewModel;
+import com.aro.jcalendar.model.Counter;
+import com.aro.jcalendar.model.CounterViewModel;
 import com.aro.jcalendar.model.Task;
 import com.aro.jcalendar.model.TaskViewModel;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     private List<Calendar> calendarList;
     private List<Calendar> monthList;
     private List<Task> taskList;
+    private List<Counter> counterList;
+    private List<Counter> allCountersList;
     private List<LocalDateTime> ldtsWithNotificationList;
 
     private Uri imageUri;
@@ -135,12 +137,22 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         calendarList = new ArrayList<>();
         monthList = new ArrayList<>();
         taskList = new ArrayList<>();
+        counterList = new ArrayList<>();
         ldtsWithNotificationList = new ArrayList<>();
 
         storageReference = FirebaseStorage.getInstance().getReference();
         sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
 
         CalendarViewModel calendarViewModel = new ViewModelProvider.AndroidViewModelFactory(this.getApplication()).create(CalendarViewModel.class);
+
+        //get the counter values for this month and make a list of them
+        CounterViewModel counterViewModel = new ViewModelProvider.AndroidViewModelFactory(this.getApplication()).create(CounterViewModel.class);
+        counterViewModel.getAllCounters().observe(this, allCounters ->{
+
+            //use the full list of counters, allCounters to make a list for the current month list
+            allCountersList = allCounters;
+
+        });
 
 
         //get the tasks from the database
@@ -152,8 +164,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
             //set up the list of dates for the month
             getMonthList();
 
+            //use the full list of counters, allCountersList to make a list for the current month list
+            getCounterList();
+
             //set recyclerview
-            adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList, this);
+            adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList, counterList, this);
             layout = new GridLayoutManager(this, 7);
             recyclerView.setLayoutManager(layout);
             recyclerView.setAdapter(adapter);
@@ -171,10 +186,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         backgroundImageRotateValue = sharedPreferences.getInt("background_rotation", 0);
         //set the background image using the rotation
         setBackgroundImage(backgroundImageRotateValue);
-
-        AdView mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
 
     }
 
@@ -391,12 +402,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
                 }
         }
 
-        //pass the lists to the adapter so it will display the task indicators on the grid
-        //set recyclerview
-        adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList,this);
-        layout = new GridLayoutManager(this, 7);
-        recyclerView.setLayoutManager(layout);
-        recyclerView.setAdapter(adapter);
     }
 
     //add dates to the start of the month to display from last month
@@ -560,6 +565,31 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
 
     }
 
+    //use the monthList and allCounterList to set a list of Counters that will display on the current calendar grid
+    private void getCounterList(){
+
+        //for each of the Counters
+        for (int i = 0; i < allCountersList.size(); i++) {
+
+            Counter currentCounter = allCountersList.get(i);
+
+            //compare it to each of the days in the monthlist
+            for (int j = 0; j < monthList.size(); j++) {
+
+                Calendar currentDay = monthList.get(j);
+
+                //if they are the same date
+                if(currentDay.date.isEqual(currentCounter.date)){
+
+                    //add the counter to the counterList
+                    counterList.add(currentCounter);
+
+                }
+            }
+        }
+
+    }
+
 
 
     //Button for user to navigate to previous month
@@ -591,8 +621,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         //set the month list using the (recently updated) movingLDT
         getMonthList();
 
+        //use the full list of counters, allCountersList to make a list for the current month list
+        getCounterList();
+
         //set recyclerview (calendar grid)
-        adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList,this);
+        adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList, counterList, this);
         layout = new GridLayoutManager(this, 7);
         recyclerView.setLayoutManager(layout);
         recyclerView.setAdapter(adapter);
@@ -628,8 +661,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         //set the month list using the (recently updated) movingLDT
         getMonthList();
 
+        //use the full list of counters, allCountersList to make a list for the current month list
+        getCounterList();
+
         //set recyclerview (calendar grid)
-        adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList,this);
+        adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList, counterList,this);
         layout = new GridLayoutManager(this, 7);
         recyclerView.setLayoutManager(layout);
         recyclerView.setAdapter(adapter);
@@ -640,7 +676,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     //user clicked on a calendar grid box
     @Override
     public void OnCalendarClickedListener(int position, Calendar calendar) {
-
 
 
         Intent intent = new Intent(this, AddNewNote.class);
@@ -670,6 +705,15 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     public void onTaskRadioButtonClicked(Task task) {
     }
 
+    @Override
+    public void OnCounterClickedListener(int position) {
+        //TODO: fill this out with what will happen when the counter number on the calendar is clicked
+        //open the counter interface...
+        //check if a counter is going
+        //if a counter is going then ask for confirmation to reset it
+        //else a counter is not going so start it
+    }
+
     //month spinner
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long l) {
@@ -690,8 +734,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         //use the month the user selected to set the monthList
         getMonthList();
 
+        //use the full list of counters, allCountersList to make a list for the current month list
+        getCounterList();
+
         //set recyclerview
-        adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList,this);
+        adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList, counterList, this);
         layout = new GridLayoutManager(this, 7);
         recyclerView.setLayoutManager(layout);
         recyclerView.setAdapter(adapter);
