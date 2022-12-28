@@ -16,10 +16,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.aro.jcalendar.adapter.CalendarAdapter;
 import com.aro.jcalendar.adapter.OnItemClickedListener;
@@ -29,6 +32,7 @@ import com.aro.jcalendar.model.Counter;
 import com.aro.jcalendar.model.CounterViewModel;
 import com.aro.jcalendar.model.Task;
 import com.aro.jcalendar.model.TaskViewModel;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -670,6 +674,84 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         recyclerView.setLayoutManager(layout);
         recyclerView.setAdapter(adapter);
 
+    }
+
+
+    //TODO: @Yelsa call this when the user clicks on the counter textview in the CalendarAdapter,
+    // and also make a button for this in the day view
+    private void ShowCounterDialog(Counter counter){
+
+        BottomSheetDialog counterDialog = new BottomSheetDialog(this);
+
+        counterDialog.setContentView(R.layout.counter_dialog);
+
+        boolean isEdit = false;
+
+        if(counter != null){
+            isEdit = true;
+        }
+
+        //views
+        TextView header = counterDialog.findViewById(R.id.counter_header);
+        EditText titleEditText = counterDialog.findViewById(R.id.counter_title_edittext);
+        EditText detailsEditText = counterDialog.findViewById(R.id.counter_details_edittext);
+        Button startButton = counterDialog.findViewById(R.id.startcounter_button);
+        Button resetButton = counterDialog.findViewById(R.id.resetcounter_button);
+        Button stopButton = counterDialog.findViewById(R.id.stopcounter_button);
+
+        if(isEdit){
+            header.setText("Update a Counter");
+            startButton.setVisibility(View.GONE);
+            resetButton.setVisibility(View.VISIBLE);
+            stopButton.setVisibility(View.VISIBLE);
+        }
+        else{
+            header.setText("Add a Counter");
+            startButton.setVisibility(View.VISIBLE);
+            resetButton.setVisibility(View.GONE);
+            stopButton.setVisibility(View.GONE);
+        }
+
+        counterDialog.show();
+
+        String titleString = titleEditText.getText().toString();
+        String detailsString = detailsEditText.getText().toString();
+
+        startButton.setOnClickListener( view -> {
+            startNewCounter(titleString, detailsString);
+        });
+
+        resetButton.setOnClickListener(view2 -> {
+            resetCounter(counter);
+        });
+
+        stopButton.setOnClickListener(view3 -> {
+            stopCounter(counter);
+        });
+
+
+        counterDialog.setOnCancelListener(dialogInterface -> counterDialog.dismiss());
+        counterDialog.setOnDismissListener(dialogInterface -> counterDialog.dismiss());
+    }
+
+    private void startNewCounter(String titleString, String detailsString){
+
+        //TODO: @Yelsa make a counter with the strings given and today as the creation date.
+        // Save it to the DB
+    }
+
+    private void resetCounter(Counter counter){
+
+        //TODO: @Yelsa reset the value of the counter to 0... meaning make a new one with the same
+        // title and details as the last one but a start date of today and value of 1
+        // and end the previous one,
+        // save changes to both the previous counter and the new one
+
+    }
+
+    private void stopCounter(Counter counter){
+
+        //TODO: @Yelsa stop the counter and save changes
     }
 
 
