@@ -5,8 +5,7 @@
     android:id="@+id/single_box_parent"
     android:layout_width="match_parent"
     android:layout_height="75dp"
-    android:padding="2dp"
-    android:tooltipText="99 Notifications">
+    android:padding="2dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardview_bg"

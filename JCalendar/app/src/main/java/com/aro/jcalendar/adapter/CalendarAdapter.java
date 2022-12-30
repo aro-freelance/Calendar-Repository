@@ -161,7 +161,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                 String title = thisCounter.getCounterTitle();
 
                 //put the counter value on the day box
-                holder.counterTextView.setText(title + "  " + stringValue);
+                //holder.counterTextView.setText(title + "  " + stringValue);
+                holder.counterTextView.setText(stringValue);
                 holder.counterTextView.setVisibility(View.VISIBLE);
             }
 

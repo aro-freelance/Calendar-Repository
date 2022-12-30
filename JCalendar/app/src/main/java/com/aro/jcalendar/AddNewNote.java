@@ -52,7 +52,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Random;
 
 public class AddNewNote extends AppCompatActivity implements OnItemClickedListener, AdapterView.OnItemSelectedListener {
@@ -138,7 +137,6 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         progressBar = findViewById(R.id.progressBar_addnewnote);
         backgroundImage = findViewById(R.id.background_imageview_add_new);
         counterTextView = findViewById(R.id.counterTextView_dayview);
-
 
 
         bottomSheetFragment = new BottomSheetFragment();
@@ -247,6 +245,9 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         //get rotation from sharedprefs and use it to set the rotation of the background
         backgroundImageRotateValue = sharedPreferences.getInt("background_rotation", 0);
         setBackgroundImage(backgroundImageRotateValue);
+
+        floatingActionButton.setTooltipText("Add New Note");
+        floatingActionButtonCounters.setTooltipText("Add New Counter");
 
         counterTextView.setOnClickListener(this::CounterTextClickMethod);
         spinner.setOnItemSelectedListener(this);
@@ -403,23 +404,26 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
         LiveData<List<Category>> listOfAllCategories = categoryViewModel.getAllCategories();
 
-        for (int i = 0; i < Objects.requireNonNull(listOfAllCategories.getValue()).size(); i++) {
+        if(listOfAllCategories.getValue() != null){
+            for (int i = 0; i < listOfAllCategories.getValue().size(); i++) {
 
-            Category currentCategory = listOfAllCategories.getValue().get(i);
+                Category currentCategory = listOfAllCategories.getValue().get(i);
 
-            //if the category that we want to delete (by name) is the same name as
-            // the category we are looking at currently in the list
-            // then remove it
-            if(currentCategory.categoryName.equals(catToDelete.categoryName)){
+                //if the category that we want to delete (by name) is the same name as
+                // the category we are looking at currently in the list
+                // then remove it
+                if(currentCategory.categoryName.equals(catToDelete.categoryName)){
 
-                //remove from the list populating the spinner
-                categories.remove(categoryString);
+                    //remove from the list populating the spinner
+                    categories.remove(categoryString);
 
-                //remove from the database
-                CategoryViewModel.delete(currentCategory);
+                    //remove from the database
+                    CategoryViewModel.delete(currentCategory);
 
+                }
             }
         }
+
     }
 
     //display the UI asking the user if they want to delete a category. And handle the methods that UI contains.
@@ -467,8 +471,10 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
             categories.add("To Do List");
             Category toDoCat = new Category("To Do List");
 
-            if(!Objects.requireNonNull(categoryViewModel.getAllCategories().getValue()).contains(toDoCat)){
-                CategoryViewModel.insert(toDoCat);
+            if(categoryViewModel.getAllCategories().getValue() != null){
+                if(!(categoryViewModel.getAllCategories().getValue()).contains(toDoCat)){
+                    CategoryViewModel.insert(toDoCat);
+                }
             }
         }
 
@@ -476,8 +482,10 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         if(!categories.contains("Completed")){
             categories.add("Completed");
             Category completedCat = new Category("Completed");
-            if(!Objects.requireNonNull(categoryViewModel.getAllCategories().getValue()).contains(completedCat)){
-                CategoryViewModel.insert(completedCat);
+            if(categoryViewModel.getAllCategories().getValue() != null){
+                if(!(categoryViewModel.getAllCategories().getValue()).contains(completedCat)){
+                    CategoryViewModel.insert(completedCat);
+                }
             }
         }
 
