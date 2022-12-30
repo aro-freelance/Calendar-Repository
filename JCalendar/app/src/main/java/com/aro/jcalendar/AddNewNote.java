@@ -53,6 +53,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.UUID;
 
 public class AddNewNote extends AppCompatActivity implements OnItemClickedListener, AdapterView.OnItemSelectedListener {
 
@@ -102,6 +103,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     private String uriAsString;
     private StorageReference storageReference;
     private int backgroundImageRotateValue = 0;
+    private boolean isInitialLoad = true;
     private boolean isReadyToCheckIncrement = true;
 
 
@@ -110,7 +112,9 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-      Setup();
+        Log.d("yelsa", "create add note");
+//        isReadyToCheckIncrement = true;
+//        Setup();
 
     }
 
@@ -118,6 +122,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     protected void onResume() {
         super.onResume();
 
+        Log.d("yelsa", "resume add note");
         isReadyToCheckIncrement = true;
         Setup();
     }
@@ -125,6 +130,8 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
 
     private void Setup(){
+
+        Log.d("yelsa", "add note setup");
 
         setContentView(R.layout.activity_add_new_calendar);
         floatingActionButton = findViewById(R.id.fab);
@@ -209,6 +216,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
             //use the full list of counters, allCounters to make a list for the current month list
             fullCounterList = allCounters;
+            Log.d("yelsa", "add note cvm. ready bool = " + isReadyToCheckIncrement);
 
             if(isReadyToCheckIncrement){
                 isReadyToCheckIncrement = false;
@@ -606,7 +614,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
                     String firstCat = null;
                     //check if this is the first load
-                    if(isReadyToCheckIncrement){
+                    if(isInitialLoad){
                         //check if any of the other categories are not empty.
                         for (int i = 0; i < tasks.size(); i++) {
                             if(firstCat == null || firstCat.equals("Completed")){
@@ -639,7 +647,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
                             emptyCatTextView.setVisibility(View.VISIBLE);
                         }
 
-                        isReadyToCheckIncrement = false;
+                        isInitialLoad = false;
                     }
                     else{
                         //if this isn't first load keep the spinner on To Do List and show UI text that it is empty
@@ -704,6 +712,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         Button resetButton = counterDialog.findViewById(R.id.resetcounter_button);
         Button stopButton = counterDialog.findViewById(R.id.stopcounter_button);
         Button deleteButton = counterDialog.findViewById(R.id.delete_counterbutton);
+        Button deleteAllButton = counterDialog.findViewById(R.id.deleteall_counterbutton);
 
         if(isEdit){
             header.setText("Update a Counter");
@@ -711,7 +720,11 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
             detailsEditText.setText(counter.getCounterAdditionalInfo());
             startButton.setVisibility(View.VISIBLE);
             deleteButton.setVisibility(View.VISIBLE);
+            deleteAllButton.setVisibility(View.VISIBLE);
             startButton.setText("Edit");
+
+            deleteButton.setTooltipText("Delete Counter for Today");
+            deleteAllButton.setTooltipText("Delete Whole Counter");
 
             LocalDateTime now = LocalDateTime.now();
 
@@ -732,6 +745,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
             resetButton.setVisibility(View.GONE);
             stopButton.setVisibility(View.GONE);
             deleteButton.setVisibility(View.GONE);
+            deleteAllButton.setVisibility(View.GONE);
         }
 
         counterDialog.show();
@@ -771,12 +785,35 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         });
 
         deleteButton.setOnClickListener(view4 ->{
-            Log.d("counter", "delete button");
+            Log.d("yelsa", "delete button");
             //TODO: add a confirmation prompt.
             CounterViewModel.delete(counter);
             counterDialog.dismiss();
             isReadyToCheckIncrement = true;
             counterTextView.setText("");
+        });
+
+        deleteAllButton.setOnClickListener(view5 ->{
+            Log.d("yelsa", "delete all button");
+            //TODO: add a confirmation prompt.
+
+            Log.d("yelsa", "full counter list size " + fullCounterList.size());
+            //delete all counters from DB if they have the same sequence title as the one selected
+            for (int i = 0; i < fullCounterList.size(); i++) {
+                isReadyToCheckIncrement = false;
+                Counter c = fullCounterList.get(i);
+                Log.d("yelsa", "c seq title = " + c.getSequenceTitle()
+                        + ". counter clicked seq title = " + counter.getSequenceTitle());
+                if(c.getSequenceTitle().equals(counter.getSequenceTitle())){
+                    Log.d("yelsa", "deleting value " + c.getValue());
+                    CounterViewModel.delete(c);
+                }
+            }
+
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
+            counterTextView.setText("");
+
         });
 
 
@@ -786,8 +823,10 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
     private void startNewCounter(String titleString, String detailsString){
 
+        String uniqueTag = String.valueOf(UUID.randomUUID());
+
         //make a counter with the strings given and today as the creation date.
-        Counter counter = new Counter(ldtClicked, titleString, detailsString, true, ldtClicked, 1);
+        Counter counter = new Counter(ldtClicked, titleString, detailsString, true, ldtClicked, 1, uniqueTag);
         //Save it to the DB
         CounterViewModel.insert(counter);
 
@@ -864,7 +903,8 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
                         //if this loop has not been turned off by running into another counter
                         if(!isConflict){
                             Counter thisCounter = new Counter(dateStarted, title, details, true,
-                                    fullCounterList.get(i).getDate().plusDays(j + 1),  value + j + 1);
+                                    fullCounterList.get(i).getDate().plusDays(j + 1),  value + j + 1,
+                                    fullCounterList.get(i).getSequenceTitle());
 
                             //check if there is another counter on that date
                             boolean dateIsEmpty = true;
@@ -932,6 +972,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
         if(currentCounterList.size() > 0){
 
+            Log.d("yelsa", "setCurrentCounter: we have a counter. make visible");
             Counter firstDailyCounter = currentCounterList.get(0);
 
             String title = firstDailyCounter.getCounterTitle().toUpperCase(Locale.ROOT);
@@ -948,6 +989,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         }
         //if there are no counters for the current day
         else{
+            Log.d("yelsa", "setCurrentCounter: no counters. ready to add a new one");
 
             counterTextView.setVisibility(View.INVISIBLE);
             floatingActionButton.setVisibility(View.VISIBLE);
@@ -1023,10 +1065,10 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         }
     }
 
-    @Override
-    public void OnCounterClickedListener(int position, Counter currentCounter) {
-        //shouldn't need to use this here, but do need to implement for interface
-    }
+//    @Override
+//    public void OnCounterClickedListener(int position, Counter currentCounter) {
+//        //shouldn't need to use this here, but do need to implement for interface
+//    }
 
     //category spinner item selected
     // (if user selected a category in the dropdown)

@@ -3,7 +3,6 @@ package com.aro.jcalendar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,7 +43,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity implements OnItemClickedListener, AdapterView.OnItemSelectedListener {
 
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     private List<Calendar> monthList;
     private List<Task> taskList;
     private List<Counter> counterList;
-    private List<Counter> allCountersList;
+    private List<Counter> fullCounterList;
     private List<LocalDateTime> ldtsWithNotificationList;
 
     private Uri imageUri;
@@ -133,7 +133,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Setup();
+        Log.d("yelsa", "create main");
+//        isReadyToCheckIncrement = true;
+//        Setup();
 
     }
 
@@ -141,6 +143,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     protected void onResume() {
         super.onResume();
 
+        Log.d("yelsa", "resume main");
+        isReadyToCheckIncrement = true;
         Setup();
     }
 
@@ -158,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         monthList = new ArrayList<>();
         taskList = new ArrayList<>();
         counterList = new ArrayList<>();
-        allCountersList = new ArrayList<>();
+        fullCounterList = new ArrayList<>();
         ldtsWithNotificationList = new ArrayList<>();
 
         storageReference = FirebaseStorage.getInstance().getReference();
@@ -172,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         counterViewModel.getAllCounters().observe(this, allCounters ->{
 
             //use the full list of counters, allCounters to make a list for the current month list
-            allCountersList = allCounters;
+            fullCounterList = allCounters;
 
             if(isReadyToCheckIncrement){
                 isReadyToCheckIncrement = false;
@@ -598,9 +602,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     private void getCounterList(){
 
         //for each of the Counters
-        for (int i = 0; i < allCountersList.size(); i++) {
+        for (int i = 0; i < fullCounterList.size(); i++) {
 
-            Counter currentCounter = allCountersList.get(i);
+            Counter currentCounter = fullCounterList.get(i);
 
             //compare it to each of the days in the monthlist
             for (int j = 0; j < monthList.size(); j++) {
@@ -720,21 +724,41 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         Button startButton = counterDialog.findViewById(R.id.startcounter_button);
         Button resetButton = counterDialog.findViewById(R.id.resetcounter_button);
         Button stopButton = counterDialog.findViewById(R.id.stopcounter_button);
+        Button deleteButton = counterDialog.findViewById(R.id.delete_counterbutton);
+        Button deleteAllButton = counterDialog.findViewById(R.id.deleteall_counterbutton);
 
         if(isEdit){
             header.setText("Update a Counter");
             titleEditText.setText(counter.getCounterTitle());
             detailsEditText.setText(counter.getCounterAdditionalInfo());
             startButton.setVisibility(View.VISIBLE);
+            deleteButton.setVisibility(View.VISIBLE);
+            deleteAllButton.setVisibility(View.VISIBLE);
             startButton.setText("Edit");
-            resetButton.setVisibility(View.VISIBLE);
-            stopButton.setVisibility(View.VISIBLE);
+
+            deleteButton.setTooltipText("Delete Counter for Today");
+            deleteAllButton.setTooltipText("Delete Whole Counter");
+
+            LocalDateTime now = LocalDateTime.now();
+
+            if(counter.getDate().getMonthValue() == now.getMonthValue()
+                    && counter.getDate().getDayOfMonth() == now.getDayOfMonth()
+                    && counter.getDate().getYear() == now.getYear()){
+                resetButton.setVisibility(View.VISIBLE);
+                stopButton.setVisibility(View.VISIBLE);
+            }
+            else{
+                resetButton.setVisibility(View.GONE);
+                stopButton.setVisibility(View.GONE);
+            }
         }
         else{
             header.setText("Add a Counter");
             startButton.setVisibility(View.VISIBLE);
             resetButton.setVisibility(View.GONE);
             stopButton.setVisibility(View.GONE);
+            deleteButton.setVisibility(View.GONE);
+            deleteAllButton.setVisibility(View.GONE);
         }
 
         counterDialog.show();
@@ -769,6 +793,34 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
             isReadyToCheckIncrement = true;
         });
 
+        deleteButton.setOnClickListener(view4 ->{
+            Log.d("yelsa", "delete button");
+            //TODO: add a confirmation prompt.
+            CounterViewModel.delete(counter);
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
+        });
+
+        deleteAllButton.setOnClickListener(view5 ->{
+            Log.d("yelsa", "delete all button");
+            //TODO: add a confirmation prompt.
+
+            Log.d("yelsa", "full counter list size " + fullCounterList.size());
+            //delete all counters from DB if they have the same sequence title as the one selected
+            for (int i = 0; i < fullCounterList.size(); i++) {
+                Counter c = fullCounterList.get(i);
+                if(c.getSequenceTitle() == counter.getSequenceTitle()){
+                    Log.d("yelsa", "deleting value " + c.getValue());
+                    CounterViewModel.delete(c);
+                }
+            }
+
+
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
+
+        });
+
 
         counterDialog.setOnCancelListener(dialogInterface -> counterDialog.dismiss());
         counterDialog.setOnDismissListener(dialogInterface -> counterDialog.dismiss());
@@ -776,8 +828,10 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
 
     private void startNewCounter(String titleString, String detailsString){
 
+        String uniqueTag = String.valueOf(UUID.randomUUID());
+
         //make a counter with the strings given and today as the creation date.
-        Counter counter = new Counter(now, titleString, detailsString, true, now, 1);
+        Counter counter = new Counter(now, titleString, detailsString, true, now, 1, uniqueTag);
         //Save it to the DB
         CounterViewModel.insert(counter);
 
@@ -848,12 +902,13 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     public void onTaskRadioButtonClicked(Task task) {
     }
 
-    @Override
-    public void OnCounterClickedListener(int position, Counter currentCounter) {
-
-        //open the counter interface
-        ShowCounterDialog(currentCounter);
-    }
+//    @Override
+//    public void OnCounterClickedListener(int position, Counter currentCounter) {
+//
+//        //TODO: @Yelsa get this to work and turn it back on
+////        //open the counter interface
+////        ShowCounterDialog(currentCounter);
+//    }
 
     //month spinner
     @Override

@@ -228,11 +228,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                     onItemClickedListener.OnCalendarClickedListener(getAdapterPosition(), currentCalendar);
                 }
 
-                //if the counter is clicked open interface for that
-                if(id == R.id.counter_number_textview){
-                    Counter currentCounter = counterList.get(getAdapterPosition());
-                    onItemClickedListener.OnCounterClickedListener(getAdapterPosition(), currentCounter);
-                }
+//                //if the counter is clicked open interface for that
+//                if(id == R.id.counter_number_textview){
+//                    Counter currentCounter = counterList.get(getAdapterPosition());
+//                    onItemClickedListener.OnCounterClickedListener(getAdapterPosition(), currentCounter);
+//                }
 
             }
             //if other id (other view is clicked)

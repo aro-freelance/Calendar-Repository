@@ -16,6 +16,6 @@ public interface OnItemClickedListener {
     //if radio button is clicked
     void onTaskRadioButtonClicked(Task task);
 
-    void OnCounterClickedListener(int position, Counter currentCounter);
+//    void OnCounterClickedListener(int position, Counter currentCounter);
 
 }

@@ -164,7 +164,8 @@ public abstract class CalendarRoomDatabase extends RoomDatabase {
                     "`counter_additional_info` TEXT, " +
                     "`is_active` INTEGER, " +
                     "`date` INTEGER, " +
-                    "`value` INTEGER)");
+                    "`value` INTEGER," +
+                    "`sequence_title` TEXT)");
 
         }
     };

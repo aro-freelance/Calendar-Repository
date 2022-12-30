@@ -39,15 +39,20 @@ public class Counter {
     //this is the "current" value at the point in the counter we are looking at
     public Integer value;
 
+    @ColumnInfo(name="sequence_title")
+    public String sequenceTitle;
+
     public Counter(){};
 
-    public Counter(LocalDateTime dateStarted, String counterTitle, String counterAdditionalInfo, Boolean isActive, LocalDateTime date, int value) {
+    public Counter(LocalDateTime dateStarted, String counterTitle, String counterAdditionalInfo,
+                   Boolean isActive, LocalDateTime date, int value, String sequenceTitle) {
         this.dateStarted = dateStarted;
         this.counterTitle = counterTitle;
         this.counterAdditionalInfo = counterAdditionalInfo;
         this.isActive = isActive;
         this.date = date;
         this.value = value;
+        this.sequenceTitle = sequenceTitle;
     }
 
     public LocalDateTime getDateStarted() {
@@ -98,5 +103,11 @@ public class Counter {
         this.value = value;
     }
 
+    public String getSequenceTitle() {
+        return sequenceTitle;
+    }
 
+    public void setSequenceTitle(String sequenceTitle) {
+        this.sequenceTitle = sequenceTitle;
+    }
 }
