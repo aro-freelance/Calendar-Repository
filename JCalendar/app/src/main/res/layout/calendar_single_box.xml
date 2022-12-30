@@ -24,51 +24,65 @@
 
 
             <LinearLayout
-                android:id="@+id/linearLayout"
-                android:layout_width="wrap_content"
+                android:id="@+id/linearLayout2"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
+                android:background="#000000"
                 android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <ImageView
-                    android:id="@+id/color_circle_1"
+                <LinearLayout
+                    android:id="@+id/linearLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:contentDescription="@string/notif_one"
-                    app:srcCompat="@drawable/ic_baseline_stars_24" />
+                    android:layout_marginStart="2dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/color_circle_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/notif_two"
-                    app:srcCompat="@drawable/ic_baseline_stars_24" />
+                    <ImageView
+                        android:id="@+id/color_circle_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/notif_one"
+                        android:padding="1dp"
+                        app:srcCompat="@drawable/ic_baseline_stars_24" />
 
-                <ImageView
-                    android:id="@+id/color_circle_3"
+                    <ImageView
+                        android:id="@+id/color_circle_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/notif_two"
+                        android:padding="1dp"
+                        app:srcCompat="@drawable/ic_baseline_stars_24" />
+
+                    <ImageView
+                        android:id="@+id/color_circle_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/notif_three"
+                        android:padding="1dp"
+                        app:srcCompat="@drawable/ic_baseline_stars_24" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/date_number_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:contentDescription="@string/notif_three"
-                    app:srcCompat="@drawable/ic_baseline_stars_24" />
+                    android:layout_marginEnd="2dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif"
+                    android:padding="2dp"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    tools:text="99" />
 
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/date_number_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:fontFamily="sans-serif"
-                android:padding="2dp"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="99" />
 
             <ImageView
                 android:id="@+id/calendar_day_bg_image_view"
@@ -88,26 +102,38 @@
                 android:id="@+id/note_preview_textview_1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:padding="4dp"
                 android:text="@string/long_note_sample"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
             <TextView
                 android:id="@+id/counter_number_textview"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:autoSizeMaxTextSize="14sp"
+                android:autoSizeMinTextSize="7sp"
+                android:autoSizeTextType="uniform"
+                android:autoText="false"
                 android:fontFamily="sans-serif"
-                android:padding="2dp"
+                android:maxLines="1"
+                android:padding="4dp"
+                android:textAlignment="textEnd"
                 android:textColor="@color/icon_red"
                 android:textSize="12sp"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/note_preview_textview_1"
                 tools:text="99" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -158,7 +158,7 @@ public abstract class CalendarRoomDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS counter_table " +
-                    "(`counterId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "(`counter_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                     "`date_started` INTEGER, " +
                     "`counter_title` TEXT, " +
                     "`counter_additional_info` TEXT, " +

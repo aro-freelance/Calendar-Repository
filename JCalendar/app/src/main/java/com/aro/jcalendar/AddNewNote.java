@@ -13,12 +13,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -29,6 +31,8 @@ import com.aro.jcalendar.model.Calendar;
 import com.aro.jcalendar.model.CalendarViewModel;
 import com.aro.jcalendar.model.Category;
 import com.aro.jcalendar.model.CategoryViewModel;
+import com.aro.jcalendar.model.Counter;
+import com.aro.jcalendar.model.CounterViewModel;
 import com.aro.jcalendar.model.SharedViewModel;
 import com.aro.jcalendar.model.Task;
 import com.aro.jcalendar.model.TaskViewModel;
@@ -39,11 +43,15 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 
@@ -68,9 +76,13 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     private Category category;
     private ProgressBar progressBar;
     private ImageView backgroundImage;
+    private TextView counterTextView;
+    private FloatingActionButton floatingActionButton;
+    private FloatingActionButton floatingActionButtonCounters;
 
     private List<Task> currentTaskList;
     private List<Task> fullTaskList;
+    private List<Counter> fullCounterList;
     private List<String> categories;
 
     private boolean loadSpinnerFromDelete = false;
@@ -78,20 +90,27 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     private CategoryViewModel categoryViewModel;
     private SharedViewModel sharedViewModel;
     private LocalDateTime ldtClicked;
+
+    //the counter displayed for the ldtclicked
+    private Counter displayedCounter = null;
+    private Counter previousCounter = null;
+
+
     private SharedPreferences sharedPreferences;
 
     private Uri imageUri;
     private String uriAsString;
     private StorageReference storageReference;
     private int backgroundImageRotateValue = 0;
-    private boolean isInitialLoad = true;
+    private boolean isReadyToCheckIncrement = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_add_new_calendar);
-        FloatingActionButton floatingActionButton = findViewById(R.id.fab);
+        floatingActionButton = findViewById(R.id.fab);
+        floatingActionButtonCounters = findViewById(R.id.fab_counter);
         spinner = findViewById(R.id.spinner_main_categories);
         deleteCatButton = findViewById(R.id.delete_empty_cat_buton);
         emptyCatTextView = findViewById(R.id.empty_cat_textview);
@@ -99,6 +118,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         CoordinatorLayout backgroundLayout = findViewById(R.id.coordinator_layout_add_new);
         progressBar = findViewById(R.id.progressBar_addnewnote);
         backgroundImage = findViewById(R.id.background_imageview_add_new);
+        counterTextView = findViewById(R.id.counterTextView_dayview);
 
 
         bottomSheetFragment = new BottomSheetFragment();
@@ -113,6 +133,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         currentTaskList = new ArrayList<>();
         fullTaskList = new ArrayList<>();
         categories = new ArrayList<>();
+        fullCounterList = new ArrayList<>();
 
         storageReference = FirebaseStorage.getInstance().getReference();
         sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
@@ -163,6 +184,22 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         //this is used to save/load Task and bool isEdit across activities
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
+        //get the counter values for this month and make a list of them
+        CounterViewModel counterViewModel = new ViewModelProvider.AndroidViewModelFactory(this.getApplication()).create(CounterViewModel.class);
+        counterViewModel.getAllCounters().observe(this, allCounters ->{
+
+            //use the full list of counters, allCounters to make a list for the current month list
+            fullCounterList = allCounters;
+
+            if(isReadyToCheckIncrement){
+                isReadyToCheckIncrement = false;
+                IncrementCounters();
+            }
+
+            Log.d("counter", "list size = " + fullCounterList.size());
+
+        });
+
         //this is used to access the task ROOM database and fill the list of tasks using it
         TaskViewModel taskViewModel = new ViewModelProvider.AndroidViewModelFactory(this.getApplication()).create(TaskViewModel.class);
         taskViewModel.getAllTasks().observe(this, tasks ->{
@@ -184,12 +221,21 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         //todo: check if this can be safely removed
         CalendarViewModel calendarViewModel = new ViewModelProvider.AndroidViewModelFactory(this.getApplication()).create(CalendarViewModel.class);
 
+
+        //SETUP UI
         //get rotation from sharedprefs and use it to set the rotation of the background
         backgroundImageRotateValue = sharedPreferences.getInt("background_rotation", 0);
         setBackgroundImage(backgroundImageRotateValue);
 
+        //hide counter text by default
+        counterTextView.setText("");
+        counterTextView.setVisibility(View.INVISIBLE);
+        counterTextView.setOnClickListener(this::CounterTextClickMethod);
+        SetCounterHeaderText();
+
         spinner.setOnItemSelectedListener(this);
         floatingActionButton.setOnClickListener(this::floatingActionButtonMethod);
+        floatingActionButtonCounters.setOnClickListener(this::floatingActionButtonMethodCounters);
         deleteCatButton.setOnClickListener(this::deleteCatButtonMethod);
 
     }
@@ -537,7 +583,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
                     String firstCat = null;
                     //check if this is the first load
-                    if(isInitialLoad){
+                    if(isReadyToCheckIncrement){
                         //check if any of the other categories are not empty.
                         for (int i = 0; i < tasks.size(); i++) {
                             if(firstCat == null || firstCat.equals("Completed")){
@@ -570,7 +616,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
                             emptyCatTextView.setVisibility(View.VISIBLE);
                         }
 
-                        isInitialLoad = false;
+                        isReadyToCheckIncrement = false;
                     }
                     else{
                         //if this isn't first load keep the spinner on To Do List and show UI text that it is empty
@@ -606,6 +652,281 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
     private void showBottomSheetDialog() {
         bottomSheetFragment.show(getSupportFragmentManager(), bottomSheetFragment.getTag());
+    }
+
+    private void floatingActionButtonMethodCounters(View view) {
+
+        //call this with null because we are not editing an existing counter
+        ShowCounterDialog(null);
+
+    }
+
+    private void ShowCounterDialog(Counter counter){
+
+        BottomSheetDialog counterDialog = new BottomSheetDialog(this);
+
+        counterDialog.setContentView(R.layout.counter_dialog);
+
+        boolean isEdit = false;
+
+        if(counter != null){
+            isEdit = true;
+        }
+
+        //views
+        TextView header = counterDialog.findViewById(R.id.counter_header);
+        EditText titleEditText = counterDialog.findViewById(R.id.counter_title_edittext);
+        EditText detailsEditText = counterDialog.findViewById(R.id.counter_details_edittext);
+        Button startButton = counterDialog.findViewById(R.id.startcounter_button);
+        Button resetButton = counterDialog.findViewById(R.id.resetcounter_button);
+        Button stopButton = counterDialog.findViewById(R.id.stopcounter_button);
+        Button deleteButton = counterDialog.findViewById(R.id.delete_counterbutton);
+
+        if(isEdit){
+            header.setText("Update a Counter");
+            titleEditText.setText(counter.getCounterTitle());
+            detailsEditText.setText(counter.getCounterAdditionalInfo());
+            startButton.setVisibility(View.VISIBLE);
+            deleteButton.setVisibility(View.VISIBLE);
+            startButton.setText("Edit");
+
+            LocalDateTime now = LocalDateTime.now();
+
+            if(counter.getDate().getMonthValue() == now.getMonthValue()
+                    && counter.getDate().getDayOfMonth() == now.getDayOfMonth()
+                    && counter.getDate().getYear() == now.getYear()){
+                resetButton.setVisibility(View.VISIBLE);
+                stopButton.setVisibility(View.VISIBLE);
+            }
+            else{
+                resetButton.setVisibility(View.GONE);
+                stopButton.setVisibility(View.GONE);
+            }
+        }
+        else{
+            header.setText("Add a Counter");
+            startButton.setVisibility(View.VISIBLE);
+            resetButton.setVisibility(View.GONE);
+            stopButton.setVisibility(View.GONE);
+            deleteButton.setVisibility(View.GONE);
+        }
+
+        counterDialog.show();
+
+        boolean finalIsEdit = isEdit;
+        startButton.setOnClickListener(view -> {
+            String titleString = titleEditText.getText().toString().trim();
+            String detailsString = detailsEditText.getText().toString().trim();
+            if(finalIsEdit){
+                Log.d("counter", "edit button");
+                editCounter(titleString, detailsString, counter);
+            }
+            else{
+                Log.d("counter", "start button");
+                startNewCounter(titleString, detailsString);
+            }
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
+        });
+
+        resetButton.setOnClickListener(view2 -> {
+            Log.d("counter", "reset button");
+            String titleString = titleEditText.getText().toString().trim();
+            String detailsString = detailsEditText.getText().toString().trim();
+            resetCounter(titleString, detailsString, counter);
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
+        });
+
+        stopButton.setOnClickListener(view3 -> {
+            Log.d("counter", "stop button");
+            String titleString = titleEditText.getText().toString().trim();
+            String detailsString = detailsEditText.getText().toString().trim();
+            stopCounter(titleString, detailsString, counter);
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
+        });
+
+        deleteButton.setOnClickListener(view4 ->{
+            Log.d("counter", "delete button");
+            //TODO: @Yelsa add a confirmation prompt.
+            CounterViewModel.delete(counter);
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
+            counterTextView.setText("");
+        });
+
+
+        counterDialog.setOnCancelListener(dialogInterface -> counterDialog.dismiss());
+        counterDialog.setOnDismissListener(dialogInterface -> counterDialog.dismiss());
+    }
+
+    private void startNewCounter(String titleString, String detailsString){
+
+        //make a counter with the strings given and today as the creation date.
+        Counter counter = new Counter(ldtClicked, titleString, detailsString, true, ldtClicked, 1);
+        //Save it to the DB
+        CounterViewModel.insert(counter);
+
+    }
+
+    private void editCounter(String titleString, String detailsString, Counter counter){
+
+        //update the counter with the new information
+        counter.setCounterTitle(titleString);
+        counter.setCounterAdditionalInfo(detailsString);
+        CounterViewModel.update(counter);
+
+    }
+
+    private void resetCounter(String titleString, String detailsString, Counter counter){
+
+        counter.setActive(true);
+        counter.setDateStarted(ldtClicked);
+        counter.setCounterTitle(titleString);
+        counter.setCounterAdditionalInfo(detailsString);
+        counter.setValue(1);
+
+
+        //save both counters
+        CounterViewModel.update(counter);
+
+
+    }
+
+    private void stopCounter(String titleString, String detailsString, Counter counter){
+
+        //stop the counter and save changes
+        counter.setActive(false);
+        counter.setCounterTitle(titleString);
+        counter.setCounterAdditionalInfo(detailsString);
+        CounterViewModel.update(counter);
+    }
+
+
+
+    //when this screen loads, increment all the counters in the list that are active
+    private void IncrementCounters(){
+        Log.d("counter", "AddNewNote: increment counters. list size = "
+                + fullCounterList.size());
+
+        //loop through all counters
+        for (int i = 0; i < fullCounterList.size(); i++) {
+
+            //if the counter is active
+            if(fullCounterList.get(i).getActive()){
+
+                //date of the active counter
+                Date counterDate = Date.from(fullCounterList.get(i).getDate().atZone(ZoneId.systemDefault()).toInstant());
+                Date now = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+
+                int daysDifference = getDaysDifference(counterDate, now);
+
+                Log.d("counter", "days difference: " + daysDifference);
+
+                //if there is at least one day between the active counter and today
+                if(daysDifference >= 1){
+
+                    LocalDateTime dateStarted = fullCounterList.get(i).getDateStarted();
+                    String title = fullCounterList.get(i).getCounterTitle();
+                    String details = fullCounterList.get(i).getCounterAdditionalInfo();
+                    int value = fullCounterList.get(i).getValue();
+                    previousCounter = fullCounterList.get(i);
+                    boolean isConflict = false;
+
+
+                    //make a counter for each day between the dates
+                    for (int j = 0; j < daysDifference; j++) {
+
+                        //if this loop has not been turned off by running into another counter
+                        if(!isConflict){
+                            Counter thisCounter = new Counter(dateStarted, title, details, true,
+                                    fullCounterList.get(i).getDate().plusDays(j + 1),  value + j + 1);
+
+                            //check if there is another counter on that date
+                            boolean dateIsEmpty = true;
+                            //loop through all counters
+                            for (int k = 0; k < fullCounterList.size(); k++) {
+
+                                Counter conflictCheckCounter = fullCounterList.get(k);
+
+                                if(conflictCheckCounter.getDate().getMonthValue() == thisCounter.getDate().getMonthValue()
+                                        && conflictCheckCounter.getDate().getDayOfMonth() == thisCounter.getDate().getDayOfMonth()
+                                        && conflictCheckCounter.getDate().getYear() == thisCounter.getDate().getYear()){
+                                    dateIsEmpty = false;
+                                }
+
+                            }
+
+                            if(dateIsEmpty){
+                                CounterViewModel.insert(thisCounter);
+
+                                previousCounter.setActive(false);
+                                CounterViewModel.update(previousCounter);
+                                previousCounter = thisCounter;
+                            }
+                            else{
+                                isConflict = true;
+                            }
+                        }
+
+                    }
+
+                }
+
+            }
+        }
+
+        SetCounterHeaderText();
+
+    }
+
+
+
+    private void SetCounterHeaderText(){
+        Log.d("counter", "set header");
+
+        //loop through the counter list
+        for (int i = 0; i < fullCounterList.size(); i++) {
+            Counter currentCounter = fullCounterList.get(i);
+
+            Log.d("counter", "counter date = " + currentCounter.getDate()
+            + ". ldt date = " + ldtClicked);
+
+            //if there is a counter for today
+            if(currentCounter.getDate().getMonthValue() == ldtClicked.getMonthValue()
+                    && currentCounter.getDate().getDayOfMonth() == ldtClicked.getDayOfMonth()
+                    && currentCounter.getDate().getYear() == ldtClicked.getYear()){
+
+
+                Log.d("counter", "counterheader: date match. counter is active? = " + currentCounter.getActive());
+
+                //display it on the TextView
+                String title = currentCounter.getCounterTitle().toUpperCase(Locale.ROOT);
+                String valueString = String.valueOf(currentCounter.getValue());
+
+                displayedCounter = currentCounter;
+
+                //TODO: @Yelsa format this so it looks better
+                counterTextView.setText(title + System.lineSeparator() + valueString);
+                counterTextView.setVisibility(View.VISIBLE);
+
+                floatingActionButtonCounters.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+    private void CounterTextClickMethod(View view){
+
+        ShowCounterDialog(displayedCounter);
+
+    }
+
+    public static int getDaysDifference(Date fromDate, Date toDate) {
+        if(fromDate==null||toDate==null)
+            return 0;
+
+        return (int)( (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
     }
 
 
@@ -664,7 +985,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     }
 
     @Override
-    public void OnCounterClickedListener(int position) {
+    public void OnCounterClickedListener(int position, Counter currentCounter) {
         //shouldn't need to use this here, but do need to implement for interface
     }
 

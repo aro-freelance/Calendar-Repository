@@ -37,15 +37,16 @@ public class Counter {
     public LocalDateTime date;
 
     //this is the "current" value at the point in the counter we are looking at
-    public int value;
+    public Integer value;
 
     public Counter(){};
 
-    public Counter(LocalDateTime dateStarted, String counterTitle, String counterAdditionalInfo, Boolean isActive, int value) {
+    public Counter(LocalDateTime dateStarted, String counterTitle, String counterAdditionalInfo, Boolean isActive, LocalDateTime date, int value) {
         this.dateStarted = dateStarted;
         this.counterTitle = counterTitle;
         this.counterAdditionalInfo = counterAdditionalInfo;
         this.isActive = isActive;
+        this.date = date;
         this.value = value;
     }
 
@@ -81,6 +82,14 @@ public class Counter {
         isActive = active;
     }
 
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
     public int getValue() {
         return value;
     }
@@ -88,4 +97,6 @@ public class Counter {
     public void setValue(int value) {
         this.value = value;
     }
+
+
 }

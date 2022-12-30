@@ -30,8 +30,10 @@
             android:scaleType="centerCrop"
             ads:layout_constraintBottom_toBottomOf="parent"
             ads:layout_constraintEnd_toEndOf="parent"
+            ads:layout_constraintHorizontal_bias="0.0"
             ads:layout_constraintStart_toStartOf="parent"
-            ads:layout_constraintTop_toTopOf="@+id/recycler_view"
+            ads:layout_constraintTop_toTopOf="@+id/guideline_main_top"
+            ads:layout_constraintVertical_bias="0.0"
             ads:srcCompat="@drawable/image_one" />
 
         <com.google.android.gms.ads.AdView
@@ -40,6 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            android:visibility="gone"
             ads:adSize="BANNER"
             ads:adUnitId="ca-app-pub-8090508994671525/9370336406"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -51,13 +54,12 @@
             android:id="@+id/recycler_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="16dp"
             android:padding="@dimen/recycler_padding"
             android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@id/guideline_main_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/guideline_main_top">
+            app:layout_constraintTop_toBottomOf="@id/counterTextView_dayview">
 
         </androidx.recyclerview.widget.RecyclerView>
 
@@ -66,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".9" />
+            ads:layout_constraintGuide_percent=".9"/>
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -124,9 +126,23 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="16dp"
+            android:tooltipText="Add Note"
             app:layout_constraintBottom_toBottomOf="@+id/recycler_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@android:drawable/ic_input_add"
+            tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginBottom="16dp"
+            android:tooltipText="Add Counter"
+            ads:backgroundTint="@color/royal_blue"
+            ads:layout_constraintBottom_toBottomOf="@+id/recycler_view"
+            ads:layout_constraintStart_toStartOf="parent"
+            ads:srcCompat="@android:drawable/ic_input_add"
             tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -169,6 +185,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/recycler_view" />
+
+        <TextView
+            android:id="@+id/counterTextView_dayview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="8dp"
+            android:text="Counter Title  5"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            ads:layout_constraintBottom_toTopOf="@+id/recycler_view"
+            ads:layout_constraintEnd_toEndOf="parent"
+            ads:layout_constraintStart_toStartOf="parent"
+            ads:layout_constraintTop_toTopOf="@+id/background_imageview_add_new" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

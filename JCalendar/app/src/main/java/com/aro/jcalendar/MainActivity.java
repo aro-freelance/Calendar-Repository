@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     private SharedPreferences sharedPreferences;
     private int backgroundImageRotateValue = 0;
     private boolean isInitialLoad = true;
+    private boolean isReadyToCheckIncrement = false;
 
 
     @Override
@@ -142,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         monthList = new ArrayList<>();
         taskList = new ArrayList<>();
         counterList = new ArrayList<>();
+        allCountersList = new ArrayList<>();
         ldtsWithNotificationList = new ArrayList<>();
 
         storageReference = FirebaseStorage.getInstance().getReference();
@@ -155,6 +157,15 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
 
             //use the full list of counters, allCounters to make a list for the current month list
             allCountersList = allCounters;
+
+            if(isReadyToCheckIncrement){
+                isReadyToCheckIncrement = false;
+                //set recyclerview
+                adapter = new CalendarAdapter(monthList, ldtsWithNotificationList, taskList, counterList, this);
+                layout = new GridLayoutManager(this, 7);
+                recyclerView.setLayoutManager(layout);
+                recyclerView.setAdapter(adapter);
+            }
 
         });
 
@@ -676,9 +687,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
 
     }
 
-
-    //TODO: @Yelsa call this when the user clicks on the counter textview in the CalendarAdapter,
-    // and also make a button for this in the day view
     private void ShowCounterDialog(Counter counter){
 
         BottomSheetDialog counterDialog = new BottomSheetDialog(this);
@@ -701,7 +709,10 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
 
         if(isEdit){
             header.setText("Update a Counter");
-            startButton.setVisibility(View.GONE);
+            titleEditText.setText(counter.getCounterTitle());
+            detailsEditText.setText(counter.getCounterAdditionalInfo());
+            startButton.setVisibility(View.VISIBLE);
+            startButton.setText("Edit");
             resetButton.setVisibility(View.VISIBLE);
             stopButton.setVisibility(View.VISIBLE);
         }
@@ -714,19 +725,34 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
 
         counterDialog.show();
 
-        String titleString = titleEditText.getText().toString();
-        String detailsString = detailsEditText.getText().toString();
-
-        startButton.setOnClickListener( view -> {
-            startNewCounter(titleString, detailsString);
+        boolean finalIsEdit = isEdit;
+        startButton.setOnClickListener(view -> {
+            String titleString = titleEditText.getText().toString().trim();
+            String detailsString = detailsEditText.getText().toString().trim();
+            if(finalIsEdit){
+                editCounter(titleString, detailsString, counter);
+            }
+            else{
+                startNewCounter(titleString, detailsString);
+            }
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
         });
 
         resetButton.setOnClickListener(view2 -> {
-            resetCounter(counter);
+            String titleString = titleEditText.getText().toString().trim();
+            String detailsString = detailsEditText.getText().toString().trim();
+            resetCounter(titleString, detailsString, counter);
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
         });
 
         stopButton.setOnClickListener(view3 -> {
-            stopCounter(counter);
+            String titleString = titleEditText.getText().toString().trim();
+            String detailsString = detailsEditText.getText().toString().trim();
+            stopCounter(titleString, detailsString, counter);
+            counterDialog.dismiss();
+            isReadyToCheckIncrement = true;
         });
 
 
@@ -736,22 +762,43 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
 
     private void startNewCounter(String titleString, String detailsString){
 
-        //TODO: @Yelsa make a counter with the strings given and today as the creation date.
-        // Save it to the DB
-    }
-
-    private void resetCounter(Counter counter){
-
-        //TODO: @Yelsa reset the value of the counter to 0... meaning make a new one with the same
-        // title and details as the last one but a start date of today and value of 1
-        // and end the previous one,
-        // save changes to both the previous counter and the new one
+        //make a counter with the strings given and today as the creation date.
+        Counter counter = new Counter(now, titleString, detailsString, true, now, 1);
+        //Save it to the DB
+        CounterViewModel.insert(counter);
 
     }
 
-    private void stopCounter(Counter counter){
+    private void editCounter(String titleString, String detailsString, Counter counter){
 
-        //TODO: @Yelsa stop the counter and save changes
+        //update the counter with the new information
+        counter.setCounterTitle(titleString);
+        counter.setCounterAdditionalInfo(detailsString);
+        CounterViewModel.update(counter);
+
+    }
+
+    private void resetCounter(String titleString, String detailsString, Counter counter){
+
+        counter.setActive(true);
+        counter.setDateStarted(now);
+        counter.setCounterTitle(titleString);
+        counter.setCounterAdditionalInfo(detailsString);
+
+
+        //save both counters
+        CounterViewModel.update(counter);
+
+
+    }
+
+    private void stopCounter(String titleString, String detailsString, Counter counter){
+
+        //stop the counter and save changes
+        counter.setActive(false);
+        counter.setCounterTitle(titleString);
+        counter.setCounterAdditionalInfo(detailsString);
+        CounterViewModel.update(counter);
     }
 
 
@@ -788,12 +835,10 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     }
 
     @Override
-    public void OnCounterClickedListener(int position) {
-        //TODO: fill this out with what will happen when the counter number on the calendar is clicked
-        //open the counter interface...
-        //check if a counter is going
-        //if a counter is going then ask for confirmation to reset it
-        //else a counter is not going so start it
+    public void OnCounterClickedListener(int position, Counter currentCounter) {
+
+        //open the counter interface
+        ShowCounterDialog(currentCounter);
     }
 
     //month spinner

@@ -5,6 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,9 +146,25 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
 
         //use the counter list to display correct numbers on the grid for the counter
+        //loop through the counter list
         for (int i = 0; i < counterList.size(); i++) {
 
-            holder.counterTextView.setText(counterList.get(i).value);
+            Counter thisCounter = counterList.get(i);
+            LocalDateTime counterDate = thisCounter.date;
+
+            //if the current date box is the counter date
+            if(calendar.getDate().getMonthValue() == counterDate.getMonthValue()
+                    && calendar.getDate().getDayOfMonth() == counterDate.getDayOfMonth()
+                    && calendar.getDate().getYear() == counterDate.getYear()){
+
+                String stringValue = String.valueOf(thisCounter.getValue());
+                String title = thisCounter.getCounterTitle();
+
+                //put the counter value on the day box
+                holder.counterTextView.setText(title + "  " + stringValue);
+                holder.counterTextView.setVisibility(View.VISIBLE);
+            }
+
         }
 
         holder.dateTextView.setText(dateNumber);
@@ -204,15 +221,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
 
             if(getAdapterPosition() >= 0 && getAdapterPosition() <= calendarList.size()){
 
-                Calendar currentCalendar = calendarList.get(getAdapterPosition());
 
                 if (id == R.id.single_box_parent){
+                    Calendar currentCalendar = calendarList.get(getAdapterPosition());
                     onItemClickedListener.OnCalendarClickedListener(getAdapterPosition(), currentCalendar);
                 }
 
                 //if the counter is clicked open interface for that
                 if(id == R.id.counter_number_textview){
-                    onItemClickedListener.OnCounterClickedListener(getAdapterPosition());
+                    Counter currentCounter = counterList.get(getAdapterPosition());
+                    onItemClickedListener.OnCounterClickedListener(getAdapterPosition(), currentCounter);
                 }
 
             }
