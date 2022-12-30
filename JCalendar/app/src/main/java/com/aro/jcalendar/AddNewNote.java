@@ -82,6 +82,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
     private List<Task> currentTaskList;
     private List<Task> fullTaskList;
+    private List<Counter> currentCounterList;
     private List<Counter> fullCounterList;
     private List<String> categories;
 
@@ -104,6 +105,8 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     private int backgroundImageRotateValue = 0;
     private boolean isReadyToCheckIncrement = true;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,6 +119,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     protected void onResume() {
         super.onResume();
 
+        isReadyToCheckIncrement = true;
         Setup();
     }
 
@@ -136,6 +140,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         counterTextView = findViewById(R.id.counterTextView_dayview);
 
 
+
         bottomSheetFragment = new BottomSheetFragment();
         ConstraintLayout constraintLayout = findViewById(R.id.bottom_sheet);
         BottomSheetBehavior<ConstraintLayout> bottomSheetBehavior = BottomSheetBehavior.from(constraintLayout);
@@ -148,7 +153,9 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         currentTaskList = new ArrayList<>();
         fullTaskList = new ArrayList<>();
         categories = new ArrayList<>();
+        currentCounterList = new ArrayList<>();
         fullCounterList = new ArrayList<>();
+
         storageReference = FirebaseStorage.getInstance().getReference();
         sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
 
@@ -241,12 +248,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         backgroundImageRotateValue = sharedPreferences.getInt("background_rotation", 0);
         setBackgroundImage(backgroundImageRotateValue);
 
-        //hide counter text by default
-        counterTextView.setText("");
-        counterTextView.setVisibility(View.INVISIBLE);
         counterTextView.setOnClickListener(this::CounterTextClickMethod);
-        SetCounterHeaderText();
-
         spinner.setOnItemSelectedListener(this);
         floatingActionButton.setOnClickListener(this::floatingActionButtonMethod);
         floatingActionButtonCounters.setOnClickListener(this::floatingActionButtonMethodCounters);
@@ -762,7 +764,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
         deleteButton.setOnClickListener(view4 ->{
             Log.d("counter", "delete button");
-            //TODO: @Yelsa add a confirmation prompt.
+            //TODO: add a confirmation prompt.
             CounterViewModel.delete(counter);
             counterDialog.dismiss();
             isReadyToCheckIncrement = true;
@@ -890,44 +892,60 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
             }
         }
 
-        SetCounterHeaderText();
+
+        setCurrentCounter(fullCounterList);
 
     }
 
 
+    private void setCurrentCounter(List<Counter> counters){
 
-    private void SetCounterHeaderText(){
-        Log.d("yelsa", "set header");
+        Log.d("yelsa", "set current counter");
 
-        //loop through the counter list
-        for (int i = 0; i < fullCounterList.size(); i++) {
-            Counter currentCounter = fullCounterList.get(i);
+        currentCounterList.clear();
 
-            Log.d("yelsa", "counter date = " + currentCounter.getDate()
-            + ". ldt date = " + ldtClicked);
+        //set up a list of tasks for the currently selected category
+        for (int i = 0; i < counters.size(); i++) {
 
-            //if there is a counter for today
-            if(currentCounter.getDate().getMonthValue() == ldtClicked.getMonthValue()
-                    && currentCounter.getDate().getDayOfMonth() == ldtClicked.getDayOfMonth()
-                    && currentCounter.getDate().getYear() == ldtClicked.getYear()){
+            Counter counter = counters.get(i);
 
-
-                Log.d("yelsa", "counterheader: date match. counter is active? = " + currentCounter.getActive());
-
-                //display it on the TextView
-                String title = currentCounter.getCounterTitle().toUpperCase(Locale.ROOT);
-                String valueString = String.valueOf(currentCounter.getValue());
-
-                displayedCounter = currentCounter;
-
-                //TODO: @Yelsa format this so it looks better
-                counterTextView.setText(title + System.lineSeparator() + valueString);
-                counterTextView.setVisibility(View.VISIBLE);
-
-                floatingActionButtonCounters.setVisibility(View.INVISIBLE);
+            //check if the due date of each task is the same as the date we are displaying (ignoring hour/min)
+            if(counter.getDate().getMonth() == ldtClicked.getMonth()){
+                if(counter.getDate().getYear() == ldtClicked.getYear()){
+                    if(counter.getDate().getDayOfMonth() == ldtClicked.getDayOfMonth()){
+                        //if we have a match add it to the current list
+                        currentCounterList.add(counter);
+                    }
+                }
             }
         }
+
+        Log.d("yelsa", "currentcounterlist = " + currentCounterList.size());
+
+        if(currentCounterList.size() > 0){
+
+            Counter firstDailyCounter = currentCounterList.get(0);
+
+            String title = firstDailyCounter.getCounterTitle().toUpperCase(Locale.ROOT);
+            String valueString = String.valueOf(firstDailyCounter.getValue());
+
+            displayedCounter = firstDailyCounter;
+
+            //TODO: format this so it looks better
+            counterTextView.setText(title + System.lineSeparator() + valueString);
+            counterTextView.setVisibility(View.VISIBLE);
+
+            floatingActionButtonCounters.setVisibility(View.INVISIBLE);
+
+        }
+        //if there are no counters for the current day
+        else{
+
+            counterTextView.setVisibility(View.INVISIBLE);
+            floatingActionButton.setVisibility(View.VISIBLE);
+        }
     }
+
 
     private void CounterTextClickMethod(View view){
 

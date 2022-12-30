@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     private boolean isReadyToCheckIncrement = false;
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
