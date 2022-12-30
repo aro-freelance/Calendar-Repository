@@ -43,6 +43,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements OnItemClickedListener, AdapterView.OnItemSelectedListener {
 
@@ -129,13 +130,25 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Setup();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Setup();
+    }
+
+    private void Setup(){
+
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.calendar_grid_recyclerview);
         monthTitleSpinner = findViewById(R.id.month_title_spinner);
-        ImageButton prevMonthButton = findViewById(R.id.prev_month_button);
-        ImageButton nextMonthButton = findViewById(R.id.next_month_button);
-        ConstraintLayout backgroundLayout = findViewById(R.id.main_constraint_background);
+
         progressBar = findViewById(R.id.progressBar_main);
         backgroundImage = findViewById(R.id.background_imageview_main);
 
@@ -148,7 +161,8 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
 
         storageReference = FirebaseStorage.getInstance().getReference();
         sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
-
+        ImageButton prevMonthButton = findViewById(R.id.prev_month_button);
+        ImageButton nextMonthButton = findViewById(R.id.next_month_button);
         CalendarViewModel calendarViewModel = new ViewModelProvider.AndroidViewModelFactory(this.getApplication()).create(CalendarViewModel.class);
 
         //get the counter values for this month and make a list of them
@@ -201,9 +215,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickedList
         backgroundImageRotateValue = sharedPreferences.getInt("background_rotation", 0);
         //set the background image using the rotation
         setBackgroundImage(backgroundImageRotateValue);
-
     }
-
 
     public void monthListSpinnerSetup(){
 

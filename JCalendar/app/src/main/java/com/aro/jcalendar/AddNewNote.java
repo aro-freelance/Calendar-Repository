@@ -108,6 +108,21 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+      Setup();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Setup();
+    }
+
+
+
+    private void Setup(){
+
         setContentView(R.layout.activity_add_new_calendar);
         floatingActionButton = findViewById(R.id.fab);
         floatingActionButtonCounters = findViewById(R.id.fab_counter);
@@ -134,7 +149,6 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         fullTaskList = new ArrayList<>();
         categories = new ArrayList<>();
         fullCounterList = new ArrayList<>();
-
         storageReference = FirebaseStorage.getInstance().getReference();
         sharedPreferences = getSharedPreferences("MySharedPrefs", MODE_PRIVATE);
 
@@ -196,7 +210,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
                 IncrementCounters();
             }
 
-            Log.d("counter", "list size = " + fullCounterList.size());
+            Log.d("yelsa", "list size = " + fullCounterList.size());
 
         });
 
@@ -237,7 +251,6 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         floatingActionButton.setOnClickListener(this::floatingActionButtonMethod);
         floatingActionButtonCounters.setOnClickListener(this::floatingActionButtonMethodCounters);
         deleteCatButton.setOnClickListener(this::deleteCatButtonMethod);
-
     }
 
 
@@ -718,11 +731,11 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
             String titleString = titleEditText.getText().toString().trim();
             String detailsString = detailsEditText.getText().toString().trim();
             if(finalIsEdit){
-                Log.d("counter", "edit button");
+                Log.d("yelsa", "edit button");
                 editCounter(titleString, detailsString, counter);
             }
             else{
-                Log.d("counter", "start button");
+                Log.d("yelsa", "start button");
                 startNewCounter(titleString, detailsString);
             }
             counterDialog.dismiss();
@@ -730,7 +743,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         });
 
         resetButton.setOnClickListener(view2 -> {
-            Log.d("counter", "reset button");
+            Log.d("yelsa", "reset button");
             String titleString = titleEditText.getText().toString().trim();
             String detailsString = detailsEditText.getText().toString().trim();
             resetCounter(titleString, detailsString, counter);
@@ -739,7 +752,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
         });
 
         stopButton.setOnClickListener(view3 -> {
-            Log.d("counter", "stop button");
+            Log.d("yelsa", "stop button");
             String titleString = titleEditText.getText().toString().trim();
             String detailsString = detailsEditText.getText().toString().trim();
             stopCounter(titleString, detailsString, counter);
@@ -807,7 +820,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
     //when this screen loads, increment all the counters in the list that are active
     private void IncrementCounters(){
-        Log.d("counter", "AddNewNote: increment counters. list size = "
+        Log.d("yelsa", "AddNewNote: increment counters. list size = "
                 + fullCounterList.size());
 
         //loop through all counters
@@ -822,7 +835,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
                 int daysDifference = getDaysDifference(counterDate, now);
 
-                Log.d("counter", "days difference: " + daysDifference);
+                Log.d("yelsa", "days difference: " + daysDifference);
 
                 //if there is at least one day between the active counter and today
                 if(daysDifference >= 1){
@@ -884,13 +897,13 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
 
 
     private void SetCounterHeaderText(){
-        Log.d("counter", "set header");
+        Log.d("yelsa", "set header");
 
         //loop through the counter list
         for (int i = 0; i < fullCounterList.size(); i++) {
             Counter currentCounter = fullCounterList.get(i);
 
-            Log.d("counter", "counter date = " + currentCounter.getDate()
+            Log.d("yelsa", "counter date = " + currentCounter.getDate()
             + ". ldt date = " + ldtClicked);
 
             //if there is a counter for today
@@ -899,7 +912,7 @@ public class AddNewNote extends AppCompatActivity implements OnItemClickedListen
                     && currentCounter.getDate().getYear() == ldtClicked.getYear()){
 
 
-                Log.d("counter", "counterheader: date match. counter is active? = " + currentCounter.getActive());
+                Log.d("yelsa", "counterheader: date match. counter is active? = " + currentCounter.getActive());
 
                 //display it on the TextView
                 String title = currentCounter.getCounterTitle().toUpperCase(Locale.ROOT);

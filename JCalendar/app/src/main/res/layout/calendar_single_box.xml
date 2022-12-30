@@ -122,7 +122,7 @@
                 android:autoSizeMaxTextSize="14sp"
                 android:autoSizeMinTextSize="7sp"
                 android:autoSizeTextType="uniform"
-                android:autoText="false"
+                android:ellipsize="end"
                 android:fontFamily="sans-serif"
                 android:maxLines="1"
                 android:padding="4dp"
